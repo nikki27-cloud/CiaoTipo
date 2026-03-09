@@ -457,6 +457,120 @@ main { padding: 20px 24px; max-width: 1500px; margin: 0 auto; }
   background: linear-gradient(90deg,#009246 33%,#ffffff 33% 66%,#ce2b37 66%);
 }
 header { position: sticky; }
+
+/* ===== JAPANESE LABEL (always visible) ===== */
+.card-ja {
+  font-size: 0.67rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.2;
+  padding: 0 3px;
+  min-height: 1em;
+  transition: color .3s;
+  word-break: keep-all;
+}
+
+/* ===== PEEK BUTTON ===== */
+.peek-btn {
+  position: absolute;
+  top: 5px; right: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px;
+  line-height: 1;
+  opacity: 0.45;
+  transition: opacity .2s, transform .15s;
+  z-index: 5;
+  user-select: none;
+}
+.peek-btn:hover { opacity: 1; transform: scale(1.2); }
+.peek-btn.peeking { opacity: 1; }
+
+.peek-reveal {
+  position: absolute;
+  bottom: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,100,100,0.92);
+  color: #fff;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 400;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.4);
+  animation: peek-in .15s ease-out;
+}
+@keyframes peek-in {
+  from { opacity:0; transform:translateX(-50%) translateY(4px); }
+  to   { opacity:1; transform:translateX(-50%) translateY(0); }
+}
+
+/* timer bar */
+.peek-timer {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #ff6060, #ffaa60);
+  border-radius: 0 0 13px 13px;
+  transition: width linear;
+  z-index: 6;
+}
+
+/* ===== PIKMIN SPARKLES ===== */
+.pikmin-particle {
+  position: absolute;
+  pointer-events: none;
+  font-size: 1rem;
+  animation: pikmin-float 1.1s ease-out forwards;
+  z-index: 20;
+  user-select: none;
+}
+@keyframes pikmin-float {
+  0%   { transform: translate(0,0) scale(1) rotate(0deg); opacity:1; }
+  60%  { opacity: 1; }
+  100% { transform: translate(var(--px),var(--py)) scale(0.2) rotate(var(--pr)); opacity:0; }
+}
+.pikmin-star {
+  position: absolute;
+  pointer-events: none;
+  width: var(--sz); height: var(--sz);
+  background: var(--col);
+  clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  animation: pikmin-star-pop 0.9s ease-out forwards;
+  z-index: 20;
+}
+@keyframes pikmin-star-pop {
+  0%   { transform: translate(0,0) scale(0) rotate(0deg); opacity:1; }
+  40%  { transform: translate(var(--px),var(--py)) scale(1.4) rotate(var(--pr)); opacity:1; }
+  100% { transform: translate(var(--px2),var(--py2)) scale(0) rotate(var(--pr2)); opacity:0; }
+}
+.pikmin-ring {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%,-50%) scale(0);
+  border: 3px solid var(--accent);
+  border-radius: 50%;
+  width: 10px; height: 10px;
+  pointer-events: none;
+  animation: pikmin-ring-expand 0.6s ease-out forwards;
+  z-index: 15;
+}
+@keyframes pikmin-ring-expand {
+  0%   { transform: translate(-50%,-50%) scale(0); opacity:0.9; }
+  100% { transform: translate(-50%,-50%) scale(8); opacity:0; }
+}
+
+/* ===== RESULT LANG BADGE ===== */
+.ri-lang { font-size: 1rem; margin-left: 2px; }
+.ri-peeked { font-size: 0.7rem; color: #ff8888; margin-left: 4px; }
+
+/* ===== HINT TOOLTIP updated ===== */
+.tooltip { display: none; } /* hide old hover tooltip — ja is always shown now */
+
 </style>
 </head>
 <body>
@@ -507,7 +621,9 @@ header { position: sticky; }
   <span class="sep">｜</span>
   <span><kbd>Shift</kbd> ホバーでヒント表示</span>
   <span class="sep">｜</span>
-  <span>ホバーで日本語表示</span>
+  <span>🌸 日本語は常時表示</span>
+  <span class="sep">｜</span>
+  <span>👁 答えを5秒表示（カウント別）</span>
   <span class="sep">｜</span>
   <span id="accent-hint"><kbd>à→a</kbd> ON: アクセント記号なしでも正解</span>
 </div>
@@ -550,9 +666,6 @@ header { position: sticky; }
 </div>
 
 <script>
-// ============================================================
-// WORD DATA  (it / de / en per word)
-// ============================================================
 const WORD_DATA = {
   verbs: { title: { it:"動詞 — Verbi quotidiani", de:"Verben — Tätigkeiten", en:"Verbs — Daily Actions" },
     words:[
@@ -1038,17 +1151,27 @@ const LOCALE = {
   }
 };
 
+
 // ===== STATE =====
 let currentCat = "verbs";
 let currentLang = "it";
-let solved = {};
+let solved = {};      // { cat: Set<idx> }
+let peeked = {};      // { cat: Set<idx> } — answered after peeking
+let solvedLang = {};  // { cat: { idx: langCode } }
 let milestoneCount = 0;
 let accentFree = false;
 let darkMode = true;
 
 function getSolved(cat){ if(!solved[cat]) solved[cat]=new Set(); return solved[cat]; }
+function getPeeked(cat){ if(!peeked[cat]) peeked[cat]=new Set(); return peeked[cat]; }
+function getSolvedLang(cat){ if(!solvedLang[cat]) solvedLang[cat]={}; return solvedLang[cat]; }
 function countAllSolved(){ let n=0; for(const c in solved) n+=solved[c].size; return n; }
 function countAllTotal(){ let n=0; for(const c in WORD_DATA) n+=WORD_DATA[c].words.length; return n; }
+function countPeekedSolved(){
+  let n=0;
+  for(const c in peeked) n+=[...peeked[c]].filter(i=>getSolved(c).has(i)).length;
+  return n;
+}
 
 function updateScore(){
   document.getElementById('score-display').innerHTML =
@@ -1057,7 +1180,7 @@ function updateScore(){
 
 // ===== ACCENT NORMALIZATION =====
 function removeAccents(s){
-  return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[ßẞ]/g,(m)=>m==='ß'?'ss':'SS');
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/ß/g,'ss');
 }
 function normalizeStr(s){
   s = s.trim().toLowerCase().replace(/['']/g,"'");
@@ -1106,14 +1229,12 @@ function playPingPong(){
 function playTypingASMR(){
   try{
     const ctx=getAudio();
-    // Soft mechanical key click
     const bufferSize=ctx.sampleRate*0.04;
     const buffer=ctx.createBuffer(1,bufferSize,ctx.sampleRate);
     const data=buffer.getChannelData(0);
     for(let i=0;i<bufferSize;i++) data[i]=(Math.random()*2-1)*(1-i/bufferSize)*0.6;
     const source=ctx.createBufferSource();
     source.buffer=buffer;
-    // Low-pass filter for warm thock sound
     const filter=ctx.createBiquadFilter();
     filter.type="bandpass";
     filter.frequency.value=2200+Math.random()*800;
@@ -1123,7 +1244,6 @@ function playTypingASMR(){
     gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.04);
     source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
     source.start(); source.stop(ctx.currentTime+0.05);
-    // Subtle resonance click
     const osc=ctx.createOscillator(), g2=ctx.createGain();
     osc.connect(g2); g2.connect(ctx.destination);
     osc.type="sine"; osc.frequency.value=900+Math.random()*200;
@@ -1155,27 +1275,87 @@ function makeHint(word){
   return word.slice(0,2)+"◯".repeat(word.length-2);
 }
 
-// ===== SPARKLES =====
-function spawnSparkles(card){
-  const c=card.querySelector('.sparkle-container');
-  if(!c) return;
-  const colors=['#f0c040','#7b6fff','#50e890','#ff8c42','#fff','#ff5566','#00eeff'];
-  for(let i=0;i<22;i++){
-    const s=document.createElement('div');
-    s.className='sparkle';
-    const angle=Math.random()*Math.PI*2, dist=30+Math.random()*50;
-    s.style.cssText=`left:${35+Math.random()*30}%;top:${25+Math.random()*30}%;background:${colors[i%colors.length]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;animation-delay:${Math.random()*0.12}s;width:${4+Math.random()*5}px;height:${4+Math.random()*5}px;`;
-    c.appendChild(s);
-    setTimeout(()=>s.remove(),1000);
+// ===== PIKMIN SPARKLES =====
+const PIKMIN_EMOJIS = ['🌸','⭐','💛','🌼','🍀','✨','💚','🌟','🧡','💜','🌺','💙'];
+const PIKMIN_COLORS = ['#ffdd44','#ff88cc','#88ffaa','#ff6644','#44ddff','#ffaa44','#cc88ff','#44ffdd'];
+
+function spawnPikminEffect(card){
+  const rect = card.getBoundingClientRect();
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+
+  // Ring burst
+  const ring = document.createElement('div');
+  ring.className = 'pikmin-ring';
+  card.appendChild(ring);
+  setTimeout(()=>ring.remove(), 700);
+
+  // Emoji particles floating up
+  for(let i=0;i<8;i++){
+    const p = document.createElement('div');
+    p.className = 'pikmin-particle';
+    p.textContent = PIKMIN_EMOJIS[Math.floor(Math.random()*PIKMIN_EMOJIS.length)];
+    const angle = (i/8)*Math.PI*2 + Math.random()*0.5;
+    const dist = 35 + Math.random()*40;
+    const px = Math.cos(angle)*dist;
+    const py = Math.sin(angle)*dist - 20;
+    p.style.cssText = `
+      left:${40+Math.random()*20}%;
+      top:${30+Math.random()*20}%;
+      --px:${px}px; --py:${py}px;
+      animation-delay:${Math.random()*0.12}s;
+      animation-duration:${0.8+Math.random()*0.4}s;
+    `;
+    card.querySelector('.sparkle-container').appendChild(p);
+    setTimeout(()=>p.remove(), 1400);
   }
+
+  // Star shapes
+  for(let i=0;i<6;i++){
+    const s = document.createElement('div');
+    s.className = 'pikmin-star';
+    const angle = Math.random()*Math.PI*2;
+    const dist = 25+Math.random()*35;
+    const dist2 = dist + 15 + Math.random()*20;
+    const col = PIKMIN_COLORS[Math.floor(Math.random()*PIKMIN_COLORS.length)];
+    const sz = 8+Math.random()*8;
+    s.style.cssText = `
+      left:${35+Math.random()*30}%;
+      top:${30+Math.random()*25}%;
+      --sz:${sz}px; --col:${col};
+      --px:${Math.cos(angle)*dist}px; --py:${Math.sin(angle)*dist}px;
+      --px2:${Math.cos(angle)*dist2}px; --py2:${Math.sin(angle)*dist2}px;
+      --pr:${Math.random()*360}deg; --pr2:${Math.random()*720}deg;
+      animation-delay:${Math.random()*0.1}s;
+    `;
+    card.querySelector('.sparkle-container').appendChild(s);
+    setTimeout(()=>s.remove(), 1200);
+  }
+
+  // Floating score pop
+  const pop = document.createElement('div');
+  pop.style.cssText = `
+    position:fixed; left:${cx}px; top:${cy-20}px;
+    transform:translateX(-50%);
+    font-size:1.1rem; font-weight:700; color:var(--green);
+    pointer-events:none; z-index:9998;
+    animation:pikmin-float 1s ease-out forwards;
+    --px:${(Math.random()-0.5)*30}px; --py:-50px; --pr:${Math.random()*20-10}deg;
+    font-family:'Lato',sans-serif;
+    text-shadow:0 0 8px rgba(80,232,144,0.6);
+  `;
+  pop.textContent = '✓';
+  document.body.appendChild(pop);
+  setTimeout(()=>pop.remove(), 1100);
 }
+
 function addGlitters(card){
   const icon=card.querySelector('.card-icon');
   if(!icon) return;
   for(let i=0;i<3;i++){
     const g=document.createElement('div');
     g.className='glitter';
-    g.style.cssText=`left:${10+Math.random()*80}%;top:${5+Math.random()*80}%;animation-delay:${Math.random()*1.5}s;width:${3+Math.random()*4}px;height:${3+Math.random()*4}px;background:${Math.random()>.5?'var(--accent)':'#fff'};`;
+    g.style.cssText=`left:${10+Math.random()*80}%;top:${5+Math.random()*80}%;animation-delay:${Math.random()*1.5}s;width:${3+Math.random()*4}px;height:${3+Math.random()*4}px;background:${Math.random()>.5?'var(--accent)':'#fff'};position:absolute;border-radius:50%;animation:glitter-loop 2s ease-in-out infinite;pointer-events:none;`;
     icon.appendChild(g);
   }
 }
@@ -1191,6 +1371,56 @@ function showMilestone(){
   setTimeout(()=>el.classList.remove('show'),2600);
 }
 
+// ===== PEEK (答えを5秒見る) =====
+const PEEK_DURATION = 5000;
+let peekTimers = {}; // idx+cat -> timer id
+
+function handlePeek(btn, word, idx, cat, card){
+  const key = cat+'_'+idx;
+  if(peekTimers[key]) return; // already peeking
+
+  // Mark as peeked
+  getPeeked(cat).add(idx);
+  btn.classList.add('peeking');
+  btn.textContent = '🙈';
+
+  const target = word[currentLang]||word.it;
+
+  // Show reveal popup
+  const reveal = document.createElement('div');
+  reveal.className = 'peek-reveal';
+  reveal.textContent = target;
+  card.appendChild(reveal);
+
+  // Timer bar
+  const timerBar = document.createElement('div');
+  timerBar.className = 'peek-timer';
+  timerBar.style.width = '100%';
+  card.appendChild(timerBar);
+
+  // Animate timer bar
+  requestAnimationFrame(()=>{
+    timerBar.style.transition = `width ${PEEK_DURATION}ms linear`;
+    timerBar.style.width = '0%';
+  });
+
+  // Input highlight
+  const input = card.querySelector('.card-input');
+  if(input){
+    input.style.borderColor = '#ff8888';
+    input.focus();
+  }
+
+  peekTimers[key] = setTimeout(()=>{
+    reveal.remove();
+    timerBar.remove();
+    btn.textContent = '👁';
+    btn.classList.remove('peeking');
+    delete peekTimers[key];
+    if(input) input.style.borderColor = '';
+  }, PEEK_DURATION);
+}
+
 // ===== RENDER =====
 function renderGrid(cat){
   const data=WORD_DATA[cat];
@@ -1201,12 +1431,16 @@ function renderGrid(cat){
   data.words.forEach((w,idx)=>{
     const isSolved=solvedSet.has(idx);
     const wordTarget=w[currentLang]||w.it;
+    const wasPeeked=getPeeked(cat).has(idx);
     const card=document.createElement('div');
     card.className='word-card'+(isSolved?' solved':'');
     card.dataset.idx=idx;
+
     card.innerHTML=`
       <div class="sparkle-container"></div>
+      ${!isSolved ? `<button class="peek-btn" title="5秒だけ答えを見る">👁</button>` : ''}
       <div class="card-icon">${w.icon}</div>
+      <div class="card-ja">${w.ja}</div>
       <div class="card-answer">${isSolved?wordTarget:''}</div>
       ${isSolved?'':`<input class="card-input" type="text" placeholder="…" autocomplete="off" spellcheck="false">`}
       <div class="tooltip">
@@ -1214,17 +1448,43 @@ function renderGrid(cat){
         <span class="hint-text"><br>${makeHint(wordTarget)}</span>
       </div>
     `;
+
     if(isSolved) addGlitters(card);
+
+    // Shift+hover still shows hint tooltip
     card.addEventListener('mouseenter',(e)=>{
+      if(!e.shiftKey) return;
       const tip=card.querySelector('.tooltip');
-      tip.querySelector('.hint-text').style.display=e.shiftKey?'inline':'none';
+      tip.querySelector('.hint-text').style.display='inline';
+      tip.style.display='block';
       tip.classList.add('visible');
     });
     card.addEventListener('mousemove',(e)=>{
-      card.querySelector('.tooltip').querySelector('.hint-text').style.display=e.shiftKey?'inline':'none';
+      const tip=card.querySelector('.tooltip');
+      if(e.shiftKey){
+        tip.querySelector('.hint-text').style.display='inline';
+        tip.style.display='block';
+        tip.classList.add('visible');
+      } else {
+        tip.classList.remove('visible');
+        setTimeout(()=>{ if(!tip.classList.contains('visible')) tip.style.display=''; },200);
+      }
     });
-    card.addEventListener('mouseleave',()=>card.querySelector('.tooltip').classList.remove('visible'));
+    card.addEventListener('mouseleave',()=>{
+      const tip=card.querySelector('.tooltip');
+      tip.classList.remove('visible');
+      setTimeout(()=>{ if(!tip.classList.contains('visible')) tip.style.display=''; },200);
+    });
+
+    // Peek button
     if(!isSolved){
+      const peekBtn = card.querySelector('.peek-btn');
+      if(peekBtn){
+        peekBtn.addEventListener('click',(e)=>{
+          e.stopPropagation();
+          handlePeek(peekBtn, w, idx, cat, card);
+        });
+      }
       const input=card.querySelector('.card-input');
       input.addEventListener('keydown',(e)=>{
         if(e.key==='Enter') tryAnswer(input,w,idx,card,cat);
@@ -1245,11 +1505,24 @@ function tryAnswer(input,word,idx,card,cat){
     setTimeout(()=>input.classList.remove('wrong'),400);
     return;
   }
+
+  // Clean up any active peek
+  const key=cat+'_'+idx;
+  if(peekTimers[key]){
+    clearTimeout(peekTimers[key]);
+    delete peekTimers[key];
+    card.querySelector('.peek-reveal')?.remove();
+    card.querySelector('.peek-timer')?.remove();
+  }
+
   getSolved(cat).add(idx);
+  getSolvedLang(cat)[idx] = currentLang; // record which lang was used
   card.classList.add('solved');
   card.querySelector('.card-answer').textContent=target;
   input.disabled=true;
-  spawnSparkles(card);
+  card.querySelector('.peek-btn')?.remove();
+
+  spawnPikminEffect(card);
   addGlitters(card);
   playPingPong();
   const s=countAllSolved();
@@ -1277,16 +1550,27 @@ function applyLocale(){
 }
 
 // ===== RESULT =====
+const LANG_FLAG = { it:'🇮🇹', de:'🇩🇪', en:'🇬🇧' };
+
 function showResult(){
   const allWords=[];
   for(const cat in WORD_DATA) WORD_DATA[cat].words.forEach((w,idx)=>allWords.push({...w,cat,idx}));
   const total=allWords.length;
   const s=countAllSolved();
+  const peekedSolved=countPeekedSolved();
+  const cleanSolved=s-peekedSolved;
   const L=LOCALE[currentLang];
-  document.getElementById('result-text').innerHTML=L.resultText(s,total);
+
+  let resultHTML = L.resultText(s,total);
+  if(peekedSolved>0){
+    resultHTML += `<br><span style="font-size:0.82rem;color:var(--text-muted);">（うち 👁 答えを見て正解: ${peekedSolved}問）</span>`;
+  }
+  document.getElementById('result-text').innerHTML=resultHTML;
+
   const list=document.getElementById('result-list');
   list.innerHTML="";
   const solvedWords=allWords.filter(w=>getSolved(w.cat).has(w.idx));
+
   if(!solvedWords.length){
     list.innerHTML=`<p style="color:var(--text-muted);text-align:center;padding:12px">—</p>`;
   } else {
@@ -1297,17 +1581,26 @@ function showResult(){
     solvedWords.forEach(w=>{
       const item=document.createElement('div');
       item.className='result-item';
-      item.innerHTML=`<span class="ri-icon">${w.icon}</span><span class="ri-word">${w[currentLang]||w.it}</span><span class="ri-meaning">${w.ja}</span>`;
+      const langUsed = (getSolvedLang(w.cat)||{})[w.idx] || currentLang;
+      const flag = LANG_FLAG[langUsed]||'';
+      const wasPeeked = getPeeked(w.cat).has(w.idx);
+      const peekedMark = wasPeeked ? `<span class="ri-peeked">👁見た</span>` : '';
+      item.innerHTML=`<span class="ri-icon">${w.icon}</span><span class="ri-word">${w[langUsed]||w.it}</span><span class="ri-lang">${flag}</span>${peekedMark}<span class="ri-meaning" style="margin-left:auto">${w.ja}</span>`;
       list.appendChild(item);
     });
   }
   document.getElementById('modal-result').classList.add('open');
 }
 
-// Reset all solved state
+// Reset all
 function resetAll(){
   solved={};
+  peeked={};
+  solvedLang={};
   milestoneCount=0;
+  // Clean up any active peek timers
+  for(const k in peekTimers){ clearTimeout(peekTimers[k]); }
+  peekTimers={};
   updateScore();
   renderGrid(currentCat);
 }
@@ -1324,29 +1617,24 @@ document.getElementById('btn-close-result').addEventListener('click',()=>{
   document.getElementById('modal-result').classList.remove('open');
   resetAll();
 });
-
 document.getElementById('cat-select').addEventListener('change',(e)=>{
   currentCat=e.target.value;
   renderGrid(currentCat);
 });
-
 document.getElementById('lang-select').addEventListener('change',(e)=>{
   currentLang=e.target.value;
   applyLocale();
 });
-
 document.getElementById('accent-toggle').addEventListener('change',(e)=>{
   accentFree=e.target.checked;
-  renderGrid(currentCat); // re-render hints
+  renderGrid(currentCat);
 });
-
 document.getElementById('btn-theme').addEventListener('click',()=>{
   darkMode=!darkMode;
   document.documentElement.setAttribute('data-theme',darkMode?'dark':'light');
   document.getElementById('btn-theme').textContent=darkMode?'🌙':'☀️';
 });
 
-// Dropdown arrow SVG (themed)
 function updateSelectArrows(){
   const col = darkMode ? '%237b6fff' : '%23333399';
   const arrow = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='${col}' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`;
@@ -1356,6 +1644,7 @@ function updateSelectArrows(){
 // ===== INIT =====
 updateSelectArrows();
 applyLocale();
+
 </script>
 </body>
 </html>
