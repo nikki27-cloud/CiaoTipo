@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark" data-lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>語学マスター</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Lato:wght@300;400;700&family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ===== THEME VARIABLES ===== */
+[data-theme="dark"] {
+  --bg: #0d0d1a;
+  --bg2: #14142b;
+  --card: #1a1a35;
+  --card-border: #2a2a55;
+  --text: #e8e8ff;
+  --text-muted: #888aaa;
+  --surface: rgba(255,255,255,0.04);
+  --shadow: rgba(0,0,0,0.5);
+  --modal-bg: linear-gradient(160deg,#1a1a3a,#12122a);
+  --input-bg: rgba(255,255,255,0.05);
+  --input-border: rgba(255,255,255,0.1);
+  --hint-bar-bg: rgba(0,0,0,0.35);
+}
+[data-theme="light"] {
+  --bg: #f0f2ff;
+  --bg2: #e6e8ff;
+  --card: #ffffff;
+  --card-border: #c8caee;
+  --text: #1a1a3a;
+  --text-muted: #6668aa;
+  --surface: rgba(0,0,0,0.03);
+  --shadow: rgba(100,100,180,0.18);
+  --modal-bg: linear-gradient(160deg,#ffffff,#eef0ff);
+  --input-bg: rgba(0,0,0,0.04);
+  --input-border: rgba(0,0,0,0.12);
+  --hint-bar-bg: rgba(255,255,255,0.7);
+}
+
+/* ===== LANGUAGE THEMES ===== */
+[data-lang="it"] { --accent: #e8b020; --accent2: #7b6fff; --green: #50e890; --hint-color: #ff8c42; --glow: rgba(232,176,32,0.35); }
+[data-lang="de"] { --accent: #d4312a; --accent2: #333333; --green: #4dbb6e; --hint-color: #f5a623; --glow: rgba(212,49,42,0.35); }
+[data-lang="en"] { --accent: #1d5fa6; --accent2: #c8102e; --green: #4dbb6e; --hint-color: #f5a623; --glow: rgba(29,95,166,0.3); }
+
+/* ===== BASE ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { transition: background .3s; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Lato', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background .3s, color .3s;
+}
+[data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(123,111,255,0.07) 0%,transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(232,176,32,0.05) 0%,transparent 60%);
+}
+[data-lang="de"] [data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(50,50,50,0.3) 0%,transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(212,49,42,0.08) 0%,transparent 60%);
+}
+
+/* ===== HEADER ===== */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 24px;
+  border-bottom: 1px solid var(--card-border);
+  background: var(--bg2);
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(10px);
+  flex-wrap: wrap;
+  gap: 8px;
+  transition: background .3s, border-color .3s;
+}
+.logo {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.1rem;
+  color: var(--accent);
+  text-shadow: 0 0 16px var(--glow);
+  letter-spacing: 2px;
+  transition: color .3s;
+  white-space: nowrap;
+}
+[data-lang="de"] .logo { font-family: 'UnifrakturMaguntia', cursive; font-size: 1.5rem; letter-spacing: 1px; }
+[data-lang="en"] .logo { font-family: 'IM Fell English', serif; font-size: 1.25rem; font-style: italic; letter-spacing: 1px; }
+
+.header-right {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+
+/* Score */
+.score-badge {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 5px 15px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+  transition: all .3s;
+}
+.score-badge span { color: var(--text-muted); font-weight: 300; margin: 0 2px; }
+
+/* Selects */
+.styled-select {
+  appearance: none;
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: 10px;
+  color: var(--text);
+  padding: 6px 30px 6px 11px;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.83rem;
+  cursor: pointer;
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color .2s, background .3s;
+}
+.styled-select:focus { outline: none; border-color: var(--accent); }
+#lang-select { border-color: var(--accent); }
+#cat-select { border-color: var(--accent2); }
+
+/* Toggle switches */
+.toggle-wrap {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.78rem; color: var(--text-muted);
+  white-space: nowrap;
+  user-select: none;
+}
+.toggle-wrap label { cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.toggle {
+  position: relative; width: 36px; height: 20px;
+  display: inline-block;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0;
+  background: var(--card-border);
+  border-radius: 20px;
+  transition: background .25s;
+  cursor: pointer;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  left: 3px; top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform .25s;
+}
+.toggle input:checked + .toggle-slider { background: var(--accent); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+/* Buttons */
+.btn-quit {
+  background: transparent;
+  border: 1.5px solid #ff5566;
+  color: #ff5566;
+  border-radius: 9px;
+  padding: 5px 13px;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+  white-space: nowrap;
+}
+.btn-quit:hover { background: #ff5566; color: #fff; }
+
+/* Theme toggle btn */
+.btn-theme {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: 9px;
+  padding: 5px 11px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+  line-height: 1;
+}
+.btn-theme:hover { border-color: var(--accent); }
+
+/* ===== HINT BAR ===== */
+.hint-bar {
+  background: var(--hint-bar-bg);
+  border-bottom: 1px solid var(--card-border);
+  padding: 6px 24px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  backdrop-filter: blur(6px);
+  transition: background .3s;
+}
+.hint-bar kbd {
+  display: inline-block;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 5px;
+  padding: 1px 7px;
+  font-size: 0.76rem;
+  font-family: monospace;
+  color: var(--accent);
+  margin: 0 2px;
+}
+.hint-bar .sep { color: var(--card-border); }
+
+/* ===== MILESTONE ===== */
+#milestone-msg {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%) scale(0.7);
+  background: var(--modal-bg);
+  border: 2px solid var(--accent);
+  border-radius: 18px;
+  padding: 20px 36px;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.4rem;
+  color: var(--accent);
+  text-align: center;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 0 50px var(--glow);
+  transition: all 0.4s cubic-bezier(.175,.885,.32,1.275);
+}
+#milestone-msg.show { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+[data-lang="de"] #milestone-msg { font-family: 'UnifrakturMaguntia', cursive; font-size: 1.8rem; }
+[data-lang="en"] #milestone-msg { font-family: 'IM Fell English', serif; font-style: italic; }
+
+/* ===== MAIN GRID ===== */
+main { padding: 20px 24px; max-width: 1500px; margin: 0 auto; }
+#category-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+[data-lang="de"] #category-title { font-family: 'UnifrakturMaguntia', cursive; font-size: 1.1rem; letter-spacing: 2px; }
+[data-lang="en"] #category-title { font-family: 'IM Fell English', serif; }
+
+.word-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px,1fr));
+  gap: 10px;
+}
+
+/* ===== CARD ===== */
+.word-card {
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: 13px;
+  padding: 10px 7px 7px;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  cursor: default;
+  position: relative;
+  transition: border-color .25s, box-shadow .25s, transform .2s, background .3s;
+  overflow: visible;
+}
+.word-card:hover { transform: translateY(-2px); }
+.word-card.solved {
+  border-color: var(--green);
+  box-shadow: 0 0 12px rgba(80,232,144,0.25), inset 0 0 18px rgba(80,232,144,0.04);
+}
+[data-theme="light"] .word-card.solved {
+  box-shadow: 0 0 12px rgba(80,200,120,0.3);
+}
+.card-icon {
+  font-size: 2.2rem; line-height: 1;
+  position: relative; user-select: none;
+}
+.card-answer {
+  font-size: 0.65rem; color: var(--green); font-weight: 700;
+  min-height: 1em; text-align: center;
+  opacity: 0; transform: translateY(4px);
+  transition: opacity .4s, transform .4s;
+  word-break: break-all; padding: 0 2px;
+}
+.word-card.solved .card-answer { opacity: 1; transform: translateY(0); }
+
+.card-input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 7px;
+  color: var(--text);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.73rem;
+  padding: 3px 5px;
+  text-align: center;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s, background .3s, color .3s;
+}
+.card-input:focus { border-color: var(--accent2); box-shadow: 0 0 0 2px rgba(123,111,255,0.15); }
+.card-input.wrong { border-color: #ff5566 !important; animation: shake .3s; }
+.card-input:disabled { opacity: 0; pointer-events: none; height: 0; padding: 0; margin: 0; border: none; }
+
+@keyframes shake {
+  0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)}
+}
+
+/* ===== TOOLTIP ===== */
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px); left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg2);
+  border: 1px solid var(--card-border);
+  border-radius: 9px;
+  padding: 7px 11px;
+  font-size: 0.76rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0; z-index: 300;
+  transition: opacity .2s;
+  box-shadow: 0 4px 18px var(--shadow);
+  text-align: center; line-height: 1.7;
+}
+.tooltip .hint-text { color: var(--hint-color); font-weight: 700; font-size: 0.79rem; display: none; }
+.tooltip.visible { opacity: 1; }
+
+/* ===== SPARKLES ===== */
+.sparkle-container {
+  position: absolute; top:0; left:0; width:100%; height:100%;
+  pointer-events: none; overflow: visible; z-index: 10;
+}
+.sparkle {
+  position: absolute; border-radius: 50%;
+  animation: sparkle-fly 0.8s ease-out forwards;
+}
+@keyframes sparkle-fly {
+  0%   { transform:translate(0,0) scale(1); opacity:1; }
+  100% { transform:translate(var(--dx),var(--dy)) scale(0); opacity:0; }
+}
+.glitter {
+  position: absolute; border-radius: 50%;
+  animation: glitter-loop 2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes glitter-loop {
+  0%   { opacity:0; transform:scale(0) translateY(0); }
+  50%  { opacity:1; transform:scale(1.4) translateY(-6px); }
+  100% { opacity:0; transform:scale(0) translateY(-14px); }
+}
+
+/* ===== END BUTTON ===== */
+.end-section {
+  margin: 40px auto;
+  max-width: 1500px;
+  padding: 0 24px 40px;
+  text-align: center;
+}
+.btn-end {
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 60%, black));
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  padding: 18px 60px;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.05rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+  box-shadow: 0 4px 20px var(--glow);
+}
+[data-lang="de"] .btn-end { font-family: 'UnifrakturMaguntia', cursive; font-size: 1.4rem; }
+[data-lang="en"] .btn-end { font-family: 'IM Fell English', serif; font-style: italic; font-size: 1.1rem; }
+.btn-end:hover { transform: translateY(-3px); box-shadow: 0 8px 28px var(--glow); }
+.btn-end-label::before { content: '🏁 '; }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7); z-index: 500;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(5px);
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--modal-bg);
+  border: 1.5px solid var(--card-border);
+  border-radius: 20px;
+  padding: 32px 40px;
+  max-width: 540px; width: 92%;
+  text-align: center;
+  box-shadow: 0 20px 70px var(--shadow);
+  transition: background .3s;
+}
+.modal-box h2 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.1rem; color: var(--accent); margin-bottom: 13px;
+}
+[data-lang="de"] .modal-box h2 { font-family: 'UnifrakturMaguntia', cursive; font-size: 1.5rem; }
+[data-lang="en"] .modal-box h2 { font-family: 'IM Fell English', serif; font-style: italic; }
+.modal-box p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; margin-bottom: 20px; }
+.modal-btns { display: flex; gap: 11px; justify-content: center; flex-wrap: wrap; }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, black));
+  color: #fff; border: none; border-radius: 11px;
+  padding: 10px 24px; font-family: 'Lato', sans-serif;
+  font-weight: 700; font-size: 0.9rem; cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 18px var(--glow); }
+.btn-secondary {
+  background: transparent; border: 1.5px solid var(--text-muted);
+  color: var(--text-muted); border-radius: 11px;
+  padding: 10px 24px; font-family: 'Lato', sans-serif;
+  font-size: 0.9rem; cursor: pointer;
+  transition: border-color .2s, color .2s;
+}
+.btn-secondary:hover { border-color: var(--text); color: var(--text); }
+
+/* Result list */
+.result-list {
+  text-align: left; margin: 11px 0 18px;
+  max-height: 300px; overflow-y: auto; padding-right: 4px;
+}
+.result-list::-webkit-scrollbar { width: 4px; }
+.result-list::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 4px; }
+.result-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 5px 9px; border-radius: 7px; margin-bottom: 3px;
+  font-size: 0.83rem; background: var(--surface);
+}
+.ri-icon { font-size: 1.2rem; }
+.ri-word { color: var(--accent); font-weight: 700; }
+.ri-meaning { color: var(--text-muted); }
+.result-score { font-size: 1rem; color: var(--text); margin-bottom: 8px; }
+.result-score strong { color: var(--green); font-size: 1.25rem; }
+
+/* DE flag stripe */
+[data-lang="de"] header::after {
+  content:'';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg,#000 33%,#d4312a 33% 66%,#f5c800 66%);
+}
+[data-lang="en"] header::after {
+  content:'';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg,#c8102e 33%,#ffffff 33% 66%,#012169 66%);
+}
+[data-lang="it"] header::after {
+  content:'';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg,#009246 33%,#ffffff 33% 66%,#ce2b37 66%);
+}
+header { position: sticky; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" id="logo-text">🇮🇹 Italiano Master</div>
+  <div class="header-right">
+    <div class="score-badge" id="score-display">0 <span>/</span> 0</div>
+
+    <!-- Language -->
+    <select class="styled-select" id="lang-select">
+      <option value="it">🇮🇹 イタリア語</option>
+      <option value="de">🇩🇪 ドイツ語</option>
+      <option value="en">🇬🇧 英語</option>
+    </select>
+
+    <!-- Category -->
+    <select class="styled-select" id="cat-select">
+      <option value="verbs">🔤 動詞</option>
+      <option value="animals">🐾 動物</option>
+      <option value="fantasy">⚔️ ファンタジー</option>
+      <option value="pokemon">🎮 ポケモン</option>
+    </select>
+
+    <!-- Accent toggle -->
+    <div class="toggle-wrap">
+      <label>
+        <span>à→a</span>
+        <span class="toggle">
+          <input type="checkbox" id="accent-toggle">
+          <span class="toggle-slider"></span>
+        </span>
+      </label>
+    </div>
+
+    <!-- Theme toggle -->
+    <button class="btn-theme" id="btn-theme" title="ライト/ダーク">🌙</button>
+
+    <!-- Quit -->
+    <button class="btn-quit" id="btn-quit">諦める</button>
+  </div>
+</header>
+
+<!-- Hint bar -->
+<div class="hint-bar" id="hint-bar">
+  <span>💡 操作方法：</span>
+  <span>入力してEnterまたは自動判定で正解</span>
+  <span class="sep">｜</span>
+  <span><kbd>Shift</kbd> ホバーでヒント表示</span>
+  <span class="sep">｜</span>
+  <span>ホバーで日本語表示</span>
+  <span class="sep">｜</span>
+  <span id="accent-hint"><kbd>à→a</kbd> ON: アクセント記号なしでも正解</span>
+</div>
+
+<div id="milestone-msg"></div>
+
+<main>
+  <div id="category-title"></div>
+  <div class="word-grid" id="word-grid"></div>
+</main>
+
+<div class="end-section">
+  <button class="btn-end" id="btn-end">
+    <span class="btn-end-label" id="end-label">終了してリザルトへ</span>
+  </button>
+</div>
+
+<!-- Quit confirm -->
+<div class="modal-overlay" id="modal-quit">
+  <div class="modal-box">
+    <h2 id="quit-title">😢 本当に諦めますか？</h2>
+    <p id="quit-body">まだ挑戦できます！<br>あと少しで全問正解かもしれません。</p>
+    <div class="modal-btns">
+      <button class="btn-primary" id="btn-continue">ゲームを続ける</button>
+      <button class="btn-secondary" id="btn-give-up">諦める</button>
+    </div>
+  </div>
+</div>
+
+<!-- Result -->
+<div class="modal-overlay" id="modal-result">
+  <div class="modal-box">
+    <h2 id="result-title">📜 リザルト</h2>
+    <p id="result-text" class="result-score"></p>
+    <div class="result-list" id="result-list"></div>
+    <div class="modal-btns">
+      <button class="btn-primary" id="btn-close-result">とじる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// WORD DATA  (it / de / en per word)
+// ============================================================
+const WORD_DATA = {
+  verbs: { title: { it:"動詞 — Verbi quotidiani", de:"Verben — Tätigkeiten", en:"Verbs — Daily Actions" },
+    words:[
+      {icon:"🍽️",it:"mangiare",de:"essen",en:"eat",ja:"食べる"},
+      {icon:"🥤",it:"bere",de:"trinken",en:"drink",ja:"飲む"},
+      {icon:"😴",it:"dormire",de:"schlafen",en:"sleep",ja:"眠る"},
+      {icon:"🚶",it:"camminare",de:"gehen",en:"walk",ja:"歩く"},
+      {icon:"🏃",it:"correre",de:"rennen",en:"run",ja:"走る"},
+      {icon:"🗣️",it:"parlare",de:"sprechen",en:"speak",ja:"話す"},
+      {icon:"👂",it:"ascoltare",de:"zuhören",en:"listen",ja:"聞く"},
+      {icon:"👀",it:"guardare",de:"schauen",en:"watch",ja:"見る"},
+      {icon:"✍️",it:"scrivere",de:"schreiben",en:"write",ja:"書く"},
+      {icon:"📖",it:"leggere",de:"lesen",en:"read",ja:"読む"},
+      {icon:"🤔",it:"pensare",de:"denken",en:"think",ja:"考える"},
+      {icon:"❤️",it:"amare",de:"lieben",en:"love",ja:"愛する"},
+      {icon:"😂",it:"ridere",de:"lachen",en:"laugh",ja:"笑う"},
+      {icon:"😢",it:"piangere",de:"weinen",en:"cry",ja:"泣く"},
+      {icon:"🎵",it:"cantare",de:"singen",en:"sing",ja:"歌う"},
+      {icon:"💃",it:"ballare",de:"tanzen",en:"dance",ja:"踊る"},
+      {icon:"🛒",it:"comprare",de:"kaufen",en:"buy",ja:"買う"},
+      {icon:"💰",it:"vendere",de:"verkaufen",en:"sell",ja:"売る"},
+      {icon:"🤝",it:"incontrare",de:"treffen",en:"meet",ja:"会う"},
+      {icon:"🔎",it:"cercare",de:"suchen",en:"search",ja:"探す"},
+      {icon:"🚿",it:"lavarsi",de:"waschen",en:"wash",ja:"洗う"},
+      {icon:"👗",it:"vestirsi",de:"anziehen",en:"dress",ja:"着替える"},
+      {icon:"📞",it:"telefonare",de:"anrufen",en:"call",ja:"電話する"},
+      {icon:"✈️",it:"viaggiare",de:"reisen",en:"travel",ja:"旅行する"},
+      {icon:"🍳",it:"cucinare",de:"kochen",en:"cook",ja:"料理する"},
+      {icon:"🧹",it:"pulire",de:"putzen",en:"clean",ja:"掃除する"},
+      {icon:"🤸",it:"giocare",de:"spielen",en:"play",ja:"遊ぶ"},
+      {icon:"📚",it:"studiare",de:"lernen",en:"study",ja:"勉強する"},
+      {icon:"💼",it:"lavorare",de:"arbeiten",en:"work",ja:"働く"},
+      {icon:"🪞",it:"comportarsi",de:"sich verhalten",en:"behave",ja:"振る舞う"},
+      {icon:"🏊",it:"nuotare",de:"schwimmen",en:"swim",ja:"泳ぐ"},
+      {icon:"🚴",it:"pedalare",de:"radfahren",en:"cycle",ja:"自転車をこぐ"},
+      {icon:"🧗",it:"arrampicarsi",de:"klettern",en:"climb",ja:"登る"},
+      {icon:"🎨",it:"disegnare",de:"zeichnen",en:"draw",ja:"描く"},
+      {icon:"📸",it:"fotografare",de:"fotografieren",en:"photograph",ja:"写真を撮る"},
+      {icon:"🎹",it:"suonare",de:"spielen",en:"play music",ja:"演奏する"},
+      {icon:"🧘",it:"riposare",de:"ausruhen",en:"rest",ja:"休む"},
+      {icon:"🛏️",it:"svegliarsi",de:"aufwachen",en:"wake up",ja:"目覚める"},
+      {icon:"☀️",it:"alzarsi",de:"aufstehen",en:"get up",ja:"起きる"},
+      {icon:"🌙",it:"addormentarsi",de:"einschlafen",en:"fall asleep",ja:"眠りにつく"},
+      {icon:"🪥",it:"lavarsi i denti",de:"Zähne putzen",en:"brush teeth",ja:"歯を磨く"},
+      {icon:"🚗",it:"guidare",de:"fahren",en:"drive",ja:"運転する"},
+      {icon:"🚂",it:"prendere il treno",de:"Zug nehmen",en:"take the train",ja:"電車に乗る"},
+      {icon:"🛳️",it:"navigare",de:"segeln",en:"sail",ja:"航行する"},
+      {icon:"🏠",it:"tornare",de:"zurückkehren",en:"return",ja:"帰る"},
+      {icon:"🚪⬅️",it:"entrare",de:"eintreten",en:"enter",ja:"入る"},
+      {icon:"🚪➡️",it:"uscire",de:"ausgehen",en:"exit",ja:"出る"},
+      {icon:"⬆️",it:"salire",de:"aufsteigen",en:"go up",ja:"上がる"},
+      {icon:"⬇️",it:"scendere",de:"absteigen",en:"go down",ja:"下がる"},
+      {icon:"🎁",it:"regalare",de:"schenken",en:"give a gift",ja:"贈る"},
+      {icon:"🗑️",it:"buttare",de:"wegwerfen",en:"throw away",ja:"捨てる"},
+      {icon:"🔧",it:"riparare",de:"reparieren",en:"repair",ja:"修理する"},
+      {icon:"🔨",it:"costruire",de:"bauen",en:"build",ja:"作る・建てる"},
+      {icon:"🌱",it:"piantare",de:"pflanzen",en:"plant",ja:"植える"},
+      {icon:"💧🌿",it:"annaffiare",de:"gießen",en:"water",ja:"水をやる"},
+      {icon:"😊",it:"sorridere",de:"lächeln",en:"smile",ja:"微笑む"},
+      {icon:"😠",it:"arrabbiarsi",de:"ärgern",en:"get angry",ja:"怒る"},
+      {icon:"😨",it:"spaventarsi",de:"erschrecken",en:"get scared",ja:"怖がる"},
+      {icon:"😲",it:"stupirsi",de:"staunen",en:"be amazed",ja:"驚く"},
+      {icon:"🤗",it:"abbracciare",de:"umarmen",en:"hug",ja:"抱きしめる"},
+      {icon:"💋",it:"baciare",de:"küssen",en:"kiss",ja:"キスする"},
+      {icon:"🙏",it:"pregare",de:"beten",en:"pray",ja:"祈る"},
+      {icon:"🎂",it:"festeggiare",de:"feiern",en:"celebrate",ja:"祝う"},
+      {icon:"💬",it:"rispondere",de:"antworten",en:"answer",ja:"返事をする"},
+      {icon:"❓",it:"chiedere",de:"fragen",en:"ask",ja:"尋ねる"},
+      {icon:"💭",it:"sognare",de:"träumen",en:"dream",ja:"夢を見る"},
+      {icon:"🪄",it:"immaginare",de:"vorstellen",en:"imagine",ja:"想像する"},
+      {icon:"📊",it:"contare",de:"zählen",en:"count",ja:"数える"},
+      {icon:"⚖️",it:"pesare",de:"wiegen",en:"weigh",ja:"重さを量る"},
+      {icon:"📏",it:"misurare",de:"messen",en:"measure",ja:"測る"},
+      {icon:"🎯",it:"mirare",de:"zielen",en:"aim",ja:"狙う"},
+      {icon:"🏆",it:"vincere",de:"gewinnen",en:"win",ja:"勝つ"},
+      {icon:"😞",it:"perdere",de:"verlieren",en:"lose",ja:"負ける"},
+      {icon:"🤝🏻",it:"aiutare",de:"helfen",en:"help",ja:"助ける"},
+      {icon:"🛡️",it:"proteggere",de:"schützen",en:"protect",ja:"守る"},
+      {icon:"🏃‍♀️💨",it:"scappare",de:"fliehen",en:"flee",ja:"逃げる"},
+      {icon:"🔒",it:"chiudere",de:"schließen",en:"close",ja:"閉める"},
+      {icon:"🔓",it:"aprire",de:"öffnen",en:"open",ja:"開ける"},
+      {icon:"🖐️",it:"toccare",de:"berühren",en:"touch",ja:"触る"},
+      {icon:"👃",it:"annusare",de:"riechen",en:"smell",ja:"嗅ぐ"},
+      {icon:"👅",it:"assaggiare",de:"kosten",en:"taste",ja:"味わう"},
+      {icon:"🤲",it:"tenere",de:"halten",en:"hold",ja:"持つ"},
+      {icon:"⬅️🤚",it:"lasciare",de:"lassen",en:"leave",ja:"置く・離す"},
+      {icon:"📦",it:"imballare",de:"verpacken",en:"pack",ja:"梱包する"},
+      {icon:"📬",it:"spedire",de:"senden",en:"send",ja:"送る"},
+      {icon:"📮",it:"ricevere",de:"empfangen",en:"receive",ja:"受け取る"},
+      {icon:"🤫",it:"tacere",de:"schweigen",en:"be silent",ja:"黙る"},
+      {icon:"📢",it:"urlare",de:"schreien",en:"shout",ja:"叫ぶ"},
+      {icon:"🎤",it:"recitare",de:"spielen",en:"act",ja:"演じる"},
+      {icon:"🏅",it:"partecipare",de:"teilnehmen",en:"participate",ja:"参加する"},
+      {icon:"🔄",it:"cambiare",de:"ändern",en:"change",ja:"変える"},
+      {icon:"✅",it:"finire",de:"beenden",en:"finish",ja:"終える"},
+      {icon:"🚀",it:"iniziare",de:"beginnen",en:"begin",ja:"始める"},
+      {icon:"🔁",it:"ripetere",de:"wiederholen",en:"repeat",ja:"繰り返す"},
+      {icon:"🧠",it:"ricordare",de:"erinnern",en:"remember",ja:"思い出す"},
+      {icon:"🗑️💭",it:"dimenticare",de:"vergessen",en:"forget",ja:"忘れる"},
+      {icon:"💊",it:"prendere",de:"nehmen",en:"take",ja:"取る"},
+      {icon:"🛍️",it:"portare",de:"tragen",en:"carry",ja:"持っていく"},
+      {icon:"🌅",it:"aspettare",de:"warten",en:"wait",ja:"待つ"},
+      {icon:"🔑",it:"trovare",de:"finden",en:"find",ja:"見つける"},
+      {icon:"📝",it:"copiare",de:"kopieren",en:"copy",ja:"コピーする"},
+      {icon:"✂️",it:"tagliare",de:"schneiden",en:"cut",ja:"切る"},
+      {icon:"🧵",it:"cucire",de:"nähen",en:"sew",ja:"縫う"},
+    ]
+  },
+  animals: { title:{ it:"動物 — Animali", de:"Tiere — Animals", en:"Animals" },
+    words:[
+      {icon:"🐶",it:"cane",de:"Hund",en:"dog",ja:"犬"},
+      {icon:"🐱",it:"gatto",de:"Katze",en:"cat",ja:"猫"},
+      {icon:"🐦",it:"uccello",de:"Vogel",en:"bird",ja:"鳥"},
+      {icon:"🐟",it:"pesce",de:"Fisch",en:"fish",ja:"魚"},
+      {icon:"🐍",it:"serpente",de:"Schlange",en:"snake",ja:"蛇"},
+      {icon:"🦁",it:"leone",de:"Löwe",en:"lion",ja:"ライオン"},
+      {icon:"🐘",it:"elefante",de:"Elefant",en:"elephant",ja:"象"},
+      {icon:"🦒",it:"giraffa",de:"Giraffe",en:"giraffe",ja:"キリン"},
+      {icon:"🐧",it:"pinguino",de:"Pinguin",en:"penguin",ja:"ペンギン"},
+      {icon:"🦊",it:"volpe",de:"Fuchs",en:"fox",ja:"キツネ"},
+      {icon:"🐺",it:"lupo",de:"Wolf",en:"wolf",ja:"オオカミ"},
+      {icon:"🐻",it:"orso",de:"Bär",en:"bear",ja:"クマ"},
+      {icon:"🐸",it:"rana",de:"Frosch",en:"frog",ja:"カエル"},
+      {icon:"🦅",it:"aquila",de:"Adler",en:"eagle",ja:"鷲"},
+      {icon:"🐬",it:"delfino",de:"Delfin",en:"dolphin",ja:"イルカ"},
+      {icon:"🐋",it:"balena",de:"Wal",en:"whale",ja:"クジラ"},
+      {icon:"🦋",it:"farfalla",de:"Schmetterling",en:"butterfly",ja:"チョウ"},
+      {icon:"🐝",it:"ape",de:"Biene",en:"bee",ja:"ハチ"},
+      {icon:"🦔",it:"riccio",de:"Igel",en:"hedgehog",ja:"ハリネズミ"},
+      {icon:"🐢",it:"tartaruga",de:"Schildkröte",en:"turtle",ja:"カメ"},
+      {icon:"🦌",it:"cervo",de:"Hirsch",en:"deer",ja:"シカ"},
+      {icon:"🐑",it:"pecora",de:"Schaf",en:"sheep",ja:"羊"},
+      {icon:"🐄",it:"mucca",de:"Kuh",en:"cow",ja:"牛"},
+      {icon:"🐖",it:"maiale",de:"Schwein",en:"pig",ja:"豚"},
+      {icon:"🐔",it:"gallina",de:"Huhn",en:"chicken",ja:"ニワトリ"},
+      {icon:"🐇",it:"coniglio",de:"Kaninchen",en:"rabbit",ja:"ウサギ"},
+      {icon:"🐿️",it:"scoiattolo",de:"Eichhörnchen",en:"squirrel",ja:"リス"},
+      {icon:"🦫",it:"castoro",de:"Biber",en:"beaver",ja:"ビーバー"},
+      {icon:"🦦",it:"lontra",de:"Otter",en:"otter",ja:"カワウソ"},
+      {icon:"🦥",it:"bradipo",de:"Faultier",en:"sloth",ja:"ナマケモノ"},
+      {icon:"🐨",it:"koala",de:"Koala",en:"koala",ja:"コアラ"},
+      {icon:"🦘",it:"canguro",de:"Känguru",en:"kangaroo",ja:"カンガルー"},
+      {icon:"🐊",it:"coccodrillo",de:"Krokodil",en:"crocodile",ja:"ワニ"},
+      {icon:"🦈",it:"squalo",de:"Hai",en:"shark",ja:"サメ"},
+      {icon:"🐙",it:"polpo",de:"Tintenfisch",en:"octopus",ja:"タコ"},
+      {icon:"🦑",it:"calamaro",de:"Kalmar",en:"squid",ja:"イカ"},
+      {icon:"🦞",it:"aragosta",de:"Hummer",en:"lobster",ja:"ロブスター"},
+      {icon:"🦀",it:"granchio",de:"Krabbe",en:"crab",ja:"カニ"},
+      {icon:"🦜",it:"pappagallo",de:"Papagei",en:"parrot",ja:"オウム"},
+      {icon:"🦢",it:"cigno",de:"Schwan",en:"swan",ja:"白鳥"},
+      {icon:"🦩",it:"fenicottero",de:"Flamingo",en:"flamingo",ja:"フラミンゴ"},
+      {icon:"🦚",it:"pavone",de:"Pfau",en:"peacock",ja:"クジャク"},
+      {icon:"🦉",it:"gufo",de:"Eule",en:"owl",ja:"フクロウ"},
+      {icon:"🦇",it:"pipistrello",de:"Fledermaus",en:"bat",ja:"コウモリ"},
+      {icon:"🐓",it:"gallo",de:"Hahn",en:"rooster",ja:"オンドリ"},
+      {icon:"🦡",it:"tasso",de:"Dachs",en:"badger",ja:"アナグマ"},
+      {icon:"🐗",it:"cinghiale",de:"Wildschwein",en:"boar",ja:"イノシシ"},
+      {icon:"🦙",it:"lama",de:"Lama",en:"llama",ja:"ラマ"},
+      {icon:"🐪",it:"cammello",de:"Kamel",en:"camel",ja:"ラクダ"},
+      {icon:"🦓",it:"zebra",de:"Zebra",en:"zebra",ja:"シマウマ"},
+      {icon:"🦏",it:"rinoceronte",de:"Nashorn",en:"rhinoceros",ja:"サイ"},
+      {icon:"🦛",it:"ippopotamo",de:"Nilpferd",en:"hippopotamus",ja:"カバ"},
+      {icon:"🐆",it:"leopardo",de:"Leopard",en:"leopard",ja:"ヒョウ"},
+      {icon:"🐅",it:"tigre",de:"Tiger",en:"tiger",ja:"トラ"},
+      {icon:"🐃",it:"bufalo",de:"Büffel",en:"buffalo",ja:"バッファロー"},
+      {icon:"🐂",it:"toro",de:"Stier",en:"bull",ja:"雄牛"},
+      {icon:"🦬",it:"bisonte",de:"Bison",en:"bison",ja:"バイソン"},
+      {icon:"🐐",it:"capra",de:"Ziege",en:"goat",ja:"ヤギ"},
+      {icon:"🐏",it:"montone",de:"Widder",en:"ram",ja:"雄羊"},
+      {icon:"🐛",it:"bruco",de:"Raupe",en:"caterpillar",ja:"芋虫"},
+      {icon:"🐌",it:"lumaca",de:"Schnecke",en:"snail",ja:"カタツムリ"},
+      {icon:"🦟",it:"zanzara",de:"Mücke",en:"mosquito",ja:"蚊"},
+      {icon:"🦗",it:"grillo",de:"Grille",en:"cricket",ja:"コオロギ"},
+      {icon:"🐜",it:"formica",de:"Ameise",en:"ant",ja:"アリ"},
+      {icon:"🐞",it:"coccinella",de:"Marienkäfer",en:"ladybug",ja:"テントウムシ"},
+      {icon:"🦎",it:"lucertola",de:"Eidechse",en:"lizard",ja:"トカゲ"},
+      {icon:"🦖",it:"tirannosauro",de:"Tyrannosaurus",en:"tyrannosaurus",ja:"ティラノサウルス"},
+      {icon:"🦕",it:"brontosauro",de:"Brontosaurus",en:"brontosaurus",ja:"ブロントサウルス"},
+      {icon:"🐻‍❄️",it:"orso polare",de:"Eisbär",en:"polar bear",ja:"シロクマ"},
+      {icon:"🦅",it:"falco",de:"Falke",en:"falcon",ja:"タカ"},
+      {icon:"🕊️",it:"colomba",de:"Taube",en:"dove",ja:"ハト"},
+      {icon:"🦤",it:"dodo",de:"Dodo",en:"dodo",ja:"ドードー"},
+      {icon:"🐤",it:"pulcino",de:"Küken",en:"chick",ja:"ヒヨコ"},
+      {icon:"🦭",it:"foca",de:"Robbe",en:"seal",ja:"アザラシ"},
+      {icon:"🦆",it:"anatra",de:"Ente",en:"duck",ja:"アヒル"},
+      {icon:"🐓",it:"tacchino",de:"Truthahn",en:"turkey",ja:"七面鳥"},
+      {icon:"🐸",it:"rospo",de:"Kröte",en:"toad",ja:"ヒキガエル"},
+      {icon:"🦈",it:"orca",de:"Orca",en:"orca",ja:"シャチ"},
+      {icon:"🐳",it:"capodoglio",de:"Pottwal",en:"sperm whale",ja:"マッコウクジラ"},
+      {icon:"🦐",it:"gamberetto",de:"Garnele",en:"shrimp",ja:"エビ"},
+      {icon:"🦂",it:"scorpione",de:"Skorpion",en:"scorpion",ja:"サソリ"},
+      {icon:"🕷️",it:"ragno",de:"Spinne",en:"spider",ja:"クモ"},
+      {icon:"🐝",it:"calabrone",de:"Hornisse",en:"hornet",ja:"スズメバチ"},
+      {icon:"🦋",it:"falena",de:"Motte",en:"moth",ja:"ガ"},
+      {icon:"🐩",it:"barboncino",de:"Pudel",en:"poodle",ja:"プードル"},
+      {icon:"🦭",it:"otaria",de:"Seelöwe",en:"sea lion",ja:"オットセイ"},
+      {icon:"🦩",it:"ibis",de:"Ibis",en:"ibis",ja:"トキ"},
+      {icon:"🐟",it:"trota",de:"Forelle",en:"trout",ja:"マス"},
+      {icon:"🐠",it:"salmone",de:"Lachs",en:"salmon",ja:"サーモン"},
+      {icon:"🦜",it:"corvo",de:"Krähe",en:"crow",ja:"カラス"},
+      {icon:"🐦",it:"rondine",de:"Schwalbe",en:"swallow",ja:"ツバメ"},
+      {icon:"🦅",it:"condor",de:"Kondor",en:"condor",ja:"コンドル"},
+      {icon:"🐻",it:"panda",de:"Panda",en:"panda",ja:"パンダ"},
+      {icon:"🦁",it:"ghepardo",de:"Gepard",en:"cheetah",ja:"チーター"},
+      {icon:"🐘",it:"mammut",de:"Mammut",en:"mammoth",ja:"マンモス"},
+      {icon:"🐺",it:"coyote",de:"Kojote",en:"coyote",ja:"コヨーテ"},
+      {icon:"🐟",it:"sardina",de:"Sardine",en:"sardine",ja:"イワシ"},
+      {icon:"🐠",it:"tonno",de:"Thunfisch",en:"tuna",ja:"マグロ"},
+      {icon:"🐠",it:"pesce pagliaccio",de:"Clownfisch",en:"clownfish",ja:"クマノミ"},
+      {icon:"🐡",it:"pesce palla",de:"Kugelfisch",en:"pufferfish",ja:"フグ"},
+      {icon:"🐾",it:"zampa",de:"Pfote",en:"paw",ja:"足跡"},
+    ]
+  },
+  fantasy:{ title:{it:"ファンタジー — Mondo fantasy",de:"Fantasy — Abenteuerwelt",en:"Fantasy — Adventure World"},
+    words:[
+      {icon:"🧙",it:"mago",de:"Zauberer",en:"wizard",ja:"魔法使い"},
+      {icon:"🧝",it:"elfo",de:"Elf",en:"elf",ja:"エルフ"},
+      {icon:"🧟",it:"zombi",de:"Zombie",en:"zombie",ja:"ゾンビ"},
+      {icon:"🧛",it:"vampiro",de:"Vampir",en:"vampire",ja:"吸血鬼"},
+      {icon:"🧜",it:"sirena",de:"Meerjungfrau",en:"mermaid",ja:"人魚"},
+      {icon:"🐉",it:"drago",de:"Drache",en:"dragon",ja:"ドラゴン"},
+      {icon:"🦄",it:"unicorno",de:"Einhorn",en:"unicorn",ja:"ユニコーン"},
+      {icon:"🧚",it:"fata",de:"Fee",en:"fairy",ja:"妖精"},
+      {icon:"👹",it:"demonio",de:"Dämon",en:"demon",ja:"悪魔"},
+      {icon:"👼",it:"angelo",de:"Engel",en:"angel",ja:"天使"},
+      {icon:"🧌",it:"troll",de:"Troll",en:"troll",ja:"トロル"},
+      {icon:"🧞",it:"genio",de:"Geist",en:"genie",ja:"精霊"},
+      {icon:"🧝‍♂️",it:"nano",de:"Zwerg",en:"dwarf",ja:"ドワーフ"},
+      {icon:"👺",it:"goblin",de:"Goblin",en:"goblin",ja:"ゴブリン"},
+      {icon:"🧟‍♂️",it:"non morto",de:"Untoter",en:"undead",ja:"アンデッド"},
+      {icon:"🐺",it:"lupo mannaro",de:"Werwolf",en:"werewolf",ja:"狼男"},
+      {icon:"👻",it:"fantasma",de:"Geist",en:"ghost",ja:"幽霊"},
+      {icon:"💀",it:"scheletro",de:"Skelett",en:"skeleton",ja:"スケルトン"},
+      {icon:"🤺",it:"cavaliere",de:"Ritter",en:"knight",ja:"騎士"},
+      {icon:"🏹",it:"arciere",de:"Bogenschütze",en:"archer",ja:"弓使い"},
+      {icon:"🗡️",it:"assassino",de:"Assassine",en:"assassin",ja:"暗殺者"},
+      {icon:"🛡️🗡️",it:"guerriero",de:"Krieger",en:"warrior",ja:"戦士"},
+      {icon:"📿",it:"sacerdote",de:"Priester",en:"priest",ja:"神官"},
+      {icon:"🧑‍⚕️",it:"guaritore",de:"Heiler",en:"healer",ja:"ヒーラー"},
+      {icon:"🎭",it:"bardo",de:"Barde",en:"bard",ja:"吟遊詩人"},
+      {icon:"🏇",it:"paladino",de:"Paladin",en:"paladin",ja:"パラディン"},
+      {icon:"🌑",it:"stregone",de:"Hexenmeister",en:"warlock",ja:"ウォーロック"},
+      {icon:"🐲",it:"orco",de:"Ork",en:"orc",ja:"オーク"},
+      {icon:"👁️",it:"ciclope",de:"Zyklop",en:"cyclops",ja:"サイクロプス"},
+      {icon:"🧊",it:"golem",de:"Golem",en:"golem",ja:"ゴーレム"},
+      {icon:"⚔️",it:"spada",de:"Schwert",en:"sword",ja:"剣"},
+      {icon:"🛡️",it:"scudo",de:"Schild",en:"shield",ja:"盾"},
+      {icon:"🏹",it:"arco",de:"Bogen",en:"bow",ja:"弓"},
+      {icon:"🗡️",it:"pugnale",de:"Dolch",en:"dagger",ja:"短剣"},
+      {icon:"🔱",it:"lancia",de:"Lanze",en:"lance",ja:"槍"},
+      {icon:"🔨",it:"martello",de:"Hammer",en:"hammer",ja:"ハンマー"},
+      {icon:"🪄",it:"bacchetta magica",de:"Zauberstab",en:"magic wand",ja:"魔法の杖"},
+      {icon:"📿",it:"amuleto",de:"Amulett",en:"amulet",ja:"アミュレット"},
+      {icon:"💍",it:"anello",de:"Ring",en:"ring",ja:"指輪"},
+      {icon:"🎩",it:"cappello",de:"Hut",en:"hat",ja:"帽子"},
+      {icon:"🥾",it:"stivali",de:"Stiefel",en:"boots",ja:"ブーツ"},
+      {icon:"🧤",it:"guanti",de:"Handschuhe",en:"gloves",ja:"グローブ"},
+      {icon:"⚗️",it:"pozione",de:"Trank",en:"potion",ja:"ポーション"},
+      {icon:"🪃",it:"bastone",de:"Stab",en:"staff",ja:"杖"},
+      {icon:"🗺️🗡️",it:"ascia",de:"Axt",en:"axe",ja:"斧"},
+      {icon:"🔥",it:"fuoco",de:"Feuer",en:"fire",ja:"炎"},
+      {icon:"💧",it:"acqua",de:"Wasser",en:"water",ja:"水"},
+      {icon:"🌪️",it:"vento",de:"Wind",en:"wind",ja:"風"},
+      {icon:"🌍",it:"terra",de:"Erde",en:"earth",ja:"土・地"},
+      {icon:"⚡",it:"fulmine",de:"Blitz",en:"lightning",ja:"雷"},
+      {icon:"❄️",it:"ghiaccio",de:"Eis",en:"ice",ja:"氷"},
+      {icon:"🌿",it:"natura",de:"Natur",en:"nature",ja:"自然"},
+      {icon:"🌑",it:"oscurità",de:"Dunkelheit",en:"darkness",ja:"闇"},
+      {icon:"☀️",it:"luce",de:"Licht",en:"light",ja:"光"},
+      {icon:"🌀",it:"vortice",de:"Strudel",en:"vortex",ja:"渦"},
+      {icon:"💨",it:"aria",de:"Luft",en:"air",ja:"空気"},
+      {icon:"🌊",it:"onda",de:"Welle",en:"wave",ja:"波"},
+      {icon:"🌋",it:"vulcano",de:"Vulkan",en:"volcano",ja:"火山"},
+      {icon:"🌌",it:"cosmo",de:"Kosmos",en:"cosmos",ja:"宇宙"},
+      {icon:"🔮",it:"magia",de:"Magie",en:"magic",ja:"魔法"},
+      {icon:"✨",it:"incantesimo",de:"Zauber",en:"spell",ja:"呪文"},
+      {icon:"💫",it:"benedizione",de:"Segen",en:"blessing",ja:"祝福"},
+      {icon:"🌑",it:"maledizione",de:"Fluch",en:"curse",ja:"呪い"},
+      {icon:"🧿",it:"protezione",de:"Schutz",en:"protection",ja:"護符"},
+      {icon:"🌟",it:"aura",de:"Aura",en:"aura",ja:"オーラ"},
+      {icon:"💥",it:"esplosione",de:"Explosion",en:"explosion",ja:"爆発"},
+      {icon:"🔯",it:"sigillo",de:"Siegel",en:"seal",ja:"封印"},
+      {icon:"🌀",it:"teletrasporto",de:"Teleport",en:"teleport",ja:"テレポート"},
+      {icon:"🏰",it:"castello",de:"Burg",en:"castle",ja:"城"},
+      {icon:"⛪",it:"tempio",de:"Tempel",en:"temple",ja:"神殿"},
+      {icon:"🏚️",it:"capanna",de:"Hütte",en:"hut",ja:"小屋"},
+      {icon:"🏪",it:"negozio",de:"Laden",en:"shop",ja:"店"},
+      {icon:"🏨",it:"ostello",de:"Herberge",en:"inn",ja:"宿屋"},
+      {icon:"⚔️🏛️",it:"arena",de:"Arena",en:"arena",ja:"闘技場"},
+      {icon:"🌲",it:"foresta",de:"Wald",en:"forest",ja:"森"},
+      {icon:"🏔️",it:"montagna",de:"Berg",en:"mountain",ja:"山"},
+      {icon:"🌊",it:"oceano",de:"Ozean",en:"ocean",ja:"海"},
+      {icon:"🏜️",it:"deserto",de:"Wüste",en:"desert",ja:"砂漠"},
+      {icon:"🌾",it:"pianura",de:"Ebene",en:"plain",ja:"平原"},
+      {icon:"🕳️",it:"grotta",de:"Höhle",en:"cave",ja:"洞窟"},
+      {icon:"🗺️",it:"dungeon",de:"Kerker",en:"dungeon",ja:"ダンジョン"},
+      {icon:"🌉",it:"ponte",de:"Brücke",en:"bridge",ja:"橋"},
+      {icon:"🏝️",it:"isola",de:"Insel",en:"island",ja:"島"},
+      {icon:"🚪",it:"portale",de:"Portal",en:"portal",ja:"ポータル"},
+      {icon:"🗼",it:"torre",de:"Turm",en:"tower",ja:"塔"},
+      {icon:"⛰️",it:"rovine",de:"Ruinen",en:"ruins",ja:"遺跡"},
+      {icon:"🌊🗺️",it:"porto",de:"Hafen",en:"harbor",ja:"港"},
+      {icon:"💎",it:"gemma",de:"Edelstein",en:"gem",ja:"宝石"},
+      {icon:"👑",it:"corona",de:"Krone",en:"crown",ja:"王冠"},
+      {icon:"📜",it:"pergamena",de:"Pergament",en:"scroll",ja:"巻き物"},
+      {icon:"🗝️",it:"chiave",de:"Schlüssel",en:"key",ja:"鍵"},
+      {icon:"💰",it:"tesoro",de:"Schatz",en:"treasure",ja:"宝物"},
+      {icon:"🧪",it:"elisir",de:"Elixier",en:"elixir",ja:"エリクサー"},
+      {icon:"🔮",it:"cristallo",de:"Kristall",en:"crystal",ja:"水晶球"},
+      {icon:"🪙",it:"moneta",de:"Münze",en:"coin",ja:"コイン"},
+      {icon:"🗺️",it:"mappa",de:"Karte",en:"map",ja:"地図"},
+      {icon:"📕",it:"libro di magia",de:"Zauberbuch",en:"spellbook",ja:"魔法書"},
+      {icon:"💾",it:"salvare",de:"speichern",en:"save",ja:"セーブ"},
+      {icon:"⚙️",it:"impostazioni",de:"Einstellungen",en:"settings",ja:"設定"},
+      {icon:"🆙",it:"livello",de:"Level",en:"level",ja:"レベル"},
+      {icon:"⬆️🆙",it:"salire di livello",de:"aufsteigen",en:"level up",ja:"レベルアップ"},
+      {icon:"❤️",it:"vita",de:"Leben",en:"life",ja:"HP・命"},
+      {icon:"💙",it:"mana",de:"Mana",en:"mana",ja:"MP・マナ"},
+      {icon:"⭐",it:"esperienza",de:"Erfahrung",en:"experience",ja:"経験値"},
+      {icon:"🏆",it:"vittoria",de:"Sieg",en:"victory",ja:"勝利"},
+      {icon:"💀",it:"sconfitta",de:"Niederlage",en:"defeat",ja:"敗北"},
+      {icon:"🎁",it:"ricompensa",de:"Belohnung",en:"reward",ja:"報酬"},
+      {icon:"📋",it:"missione",de:"Aufgabe",en:"quest",ja:"クエスト"},
+      {icon:"🌍",it:"mondo",de:"Welt",en:"world",ja:"世界"},
+      {icon:"⏰",it:"turno",de:"Runde",en:"turn",ja:"ターン"},
+      {icon:"🤝",it:"alleanza",de:"Bündnis",en:"alliance",ja:"同盟"},
+      {icon:"👑",it:"re",de:"König",en:"king",ja:"王"},
+      {icon:"👸",it:"principessa",de:"Prinzessin",en:"princess",ja:"王女"},
+      {icon:"📯",it:"battaglia",de:"Kampf",en:"battle",ja:"戦い"},
+    ]
+  },
+  pokemon:{ title:{it:"ポケモン語彙 — Vocabolario Pokémon",de:"Pokémon-Wörter",en:"Pokémon Vocabulary"},
+    words:[
+      {icon:"🔥",it:"fuoco",de:"Feuer",en:"fire",ja:"炎タイプ"},
+      {icon:"💧",it:"acqua",de:"Wasser",en:"water",ja:"水タイプ"},
+      {icon:"🌿",it:"erba",de:"Pflanze",en:"grass",ja:"草タイプ"},
+      {icon:"⚡",it:"elettro",de:"Elektro",en:"electric",ja:"電気タイプ"},
+      {icon:"🌍",it:"terra",de:"Boden",en:"ground",ja:"地面タイプ"},
+      {icon:"🪨",it:"roccia",de:"Gestein",en:"rock",ja:"岩タイプ"},
+      {icon:"❄️",it:"ghiaccio",de:"Eis",en:"ice",ja:"氷タイプ"},
+      {icon:"🐛",it:"insetto",de:"Käfer",en:"bug",ja:"虫タイプ"},
+      {icon:"👻",it:"spettro",de:"Geist",en:"ghost",ja:"ゴーストタイプ"},
+      {icon:"🐉",it:"drago",de:"Drache",en:"dragon",ja:"ドラゴンタイプ"},
+      {icon:"🌑",it:"buio",de:"Unlicht",en:"dark",ja:"あくタイプ"},
+      {icon:"🔮",it:"psico",de:"Psycho",en:"psychic",ja:"エスパータイプ"},
+      {icon:"🌪️",it:"volante",de:"Flug",en:"flying",ja:"ひこうタイプ"},
+      {icon:"👊",it:"lotta",de:"Kampf",en:"fighting",ja:"かくとうタイプ"},
+      {icon:"☠️",it:"veleno",de:"Gift",en:"poison",ja:"どくタイプ"},
+      {icon:"🤖",it:"acciaio",de:"Stahl",en:"steel",ja:"はがねタイプ"},
+      {icon:"🌟",it:"normale",de:"Normal",en:"normal",ja:"ノーマルタイプ"},
+      {icon:"🧚",it:"folletto",de:"Fee",en:"fairy",ja:"フェアリータイプ"},
+      {icon:"⚔️",it:"attacco",de:"Angriff",en:"attack",ja:"攻撃"},
+      {icon:"🛡️",it:"difesa",de:"Verteidigung",en:"defense",ja:"防御"},
+      {icon:"💨",it:"velocità",de:"Initiative",en:"speed",ja:"すばやさ"},
+      {icon:"💥",it:"mossa",de:"Attacke",en:"move",ja:"わざ"},
+      {icon:"❤️",it:"punti salute",de:"Kraftpunkte",en:"hit points",ja:"HP"},
+      {icon:"✨",it:"attacco speciale",de:"Spezial-Angriff",en:"special attack",ja:"特攻"},
+      {icon:"🛡️✨",it:"difesa speciale",de:"Spezial-Verteidigung",en:"special defense",ja:"特防"},
+      {icon:"🎯",it:"precisione",de:"Genauigkeit",en:"accuracy",ja:"命中率"},
+      {icon:"🏆",it:"vittoria",de:"Sieg",en:"victory",ja:"勝利"},
+      {icon:"💀",it:"sconfitta",de:"Niederlage",en:"defeat",ja:"敗北"},
+      {icon:"🔄",it:"turno",de:"Runde",en:"turn",ja:"ターン"},
+      {icon:"🆙",it:"livello",de:"Level",en:"level",ja:"レベル"},
+      {icon:"⭐",it:"punti esperienza",de:"Erfahrungspunkte",en:"experience points",ja:"経験値"},
+      {icon:"💊",it:"bacca",de:"Beere",en:"berry",ja:"きのみ"},
+      {icon:"🍶",it:"pozione",de:"Trank",en:"potion",ja:"キズぐすり"},
+      {icon:"💉",it:"antidoto",de:"Antidot",en:"antidote",ja:"どくけし"},
+      {icon:"🔋",it:"etere",de:"Äther",en:"ether",ja:"エーテル"},
+      {icon:"🧪",it:"elisir",de:"Elixier",en:"elixir",ja:"エリクサー"},
+      {icon:"🔴",it:"rivivere",de:"Belebung",en:"revive",ja:"げんきのかけら"},
+      {icon:"🔥💀",it:"bruciatura",de:"Verbrennung",en:"burn",ja:"やけど"},
+      {icon:"☠️🟣",it:"avvelenamento",de:"Vergiftung",en:"poison",ja:"どく"},
+      {icon:"😴",it:"sonno",de:"Schlaf",en:"sleep",ja:"ねむり"},
+      {icon:"❄️💀",it:"congelamento",de:"Einfrieren",en:"freeze",ja:"こおり"},
+      {icon:"⚡💀",it:"paralisi",de:"Lähmung",en:"paralysis",ja:"まひ"},
+      {icon:"😵",it:"confusione",de:"Verwirrung",en:"confusion",ja:"こんらん"},
+      {icon:"💫",it:"fascino",de:"Verliebtheit",en:"infatuation",ja:"メロメロ"},
+      {icon:"🎱",it:"catturare",de:"fangen",en:"catch",ja:"捕まえる"},
+      {icon:"⚫",it:"sfera",de:"Ball",en:"ball",ja:"モンスターボール"},
+      {icon:"🌌",it:"sfera master",de:"Meisterball",en:"master ball",ja:"マスターボール"},
+      {icon:"⭕",it:"sfera ultra",de:"Hyperball",en:"ultra ball",ja:"ハイパーボール"},
+      {icon:"🔵",it:"sfera grande",de:"Superball",en:"great ball",ja:"スーパーボール"},
+      {icon:"📦",it:"deposito",de:"Box",en:"box",ja:"ボックス"},
+      {icon:"🔄",it:"scambio",de:"Tausch",en:"trade",ja:"交換"},
+      {icon:"🥚",it:"uovo",de:"Ei",en:"egg",ja:"タマゴ"},
+      {icon:"✨",it:"lucente",de:"schillernd",en:"shiny",ja:"色違い"},
+      {icon:"👑",it:"leggendario",de:"legendär",en:"legendary",ja:"伝説ポケモン"},
+      {icon:"🌟",it:"mitico",de:"mysteriös",en:"mythical",ja:"幻のポケモン"},
+      {icon:"📈",it:"evolvere",de:"entwickeln",en:"evolve",ja:"進化する"},
+      {icon:"🔮",it:"pietra",de:"Stein",en:"stone",ja:"進化の石"},
+      {icon:"💎",it:"pietra solare",de:"Sonnen-Stein",en:"sun stone",ja:"太陽の石"},
+      {icon:"🌙",it:"pietra lunare",de:"Mond-Stein",en:"moon stone",ja:"月の石"},
+      {icon:"🔥🪨",it:"pietra fuoco",de:"Feuer-Stein",en:"fire stone",ja:"ほのおのいし"},
+      {icon:"💧🪨",it:"pietra acqua",de:"Wasser-Stein",en:"water stone",ja:"みずのいし"},
+      {icon:"⚡🪨",it:"pietra tuono",de:"Donner-Stein",en:"thunder stone",ja:"かみなりのいし"},
+      {icon:"🌿🪨",it:"pietra foglia",de:"Blatt-Stein",en:"leaf stone",ja:"リーフのいし"},
+      {icon:"🌿",it:"erba alta",de:"hohes Gras",en:"tall grass",ja:"草むら"},
+      {icon:"🌊",it:"mare",de:"Meer",en:"sea",ja:"海"},
+      {icon:"🕳️",it:"grotta",de:"Höhle",en:"cave",ja:"洞窟"},
+      {icon:"🏙️",it:"città",de:"Stadt",en:"city",ja:"シティ"},
+      {icon:"🏘️",it:"villaggio",de:"Dorf",en:"village",ja:"村"},
+      {icon:"🛣️",it:"strada",de:"Straße",en:"road",ja:"道"},
+      {icon:"🏋️",it:"palestra",de:"Turnhalle",en:"gym",ja:"ジム"},
+      {icon:"🏆",it:"lega",de:"Liga",en:"league",ja:"ポケモンリーグ"},
+      {icon:"🔬",it:"laboratorio",de:"Labor",en:"laboratory",ja:"研究所"},
+      {icon:"🏪",it:"negozio",de:"Laden",en:"shop",ja:"ポケマート"},
+      {icon:"💊🏥",it:"centro",de:"Zentrum",en:"center",ja:"ポケモンセンター"},
+      {icon:"🌋",it:"monte",de:"Berg",en:"mountain",ja:"山"},
+      {icon:"🌾",it:"pianura",de:"Ebene",en:"plain",ja:"平原"},
+      {icon:"🏜️",it:"deserto",de:"Wüste",en:"desert",ja:"砂漠"},
+      {icon:"🌲",it:"bosco",de:"Wald",en:"forest",ja:"森"},
+      {icon:"🏝️",it:"isola",de:"Insel",en:"island",ja:"島"},
+      {icon:"🌊🏞️",it:"cascata",de:"Wasserfall",en:"waterfall",ja:"滝"},
+      {icon:"🏔️",it:"picco nevoso",de:"Schneegipfel",en:"snow peak",ja:"雪山"},
+      {icon:"🌿🏞️",it:"prato",de:"Wiese",en:"meadow",ja:"草原"},
+      {icon:"🎒",it:"zaino",de:"Rucksack",en:"bag",ja:"バッグ"},
+      {icon:"📱",it:"pokedex",de:"Pokédex",en:"pokedex",ja:"ポケモン図鑑"},
+      {icon:"💾",it:"salvare",de:"speichern",en:"save",ja:"セーブ"},
+      {icon:"🎖️",it:"medaglia",de:"Orden",en:"badge",ja:"バッジ"},
+      {icon:"📜",it:"mossa nascosta",de:"Versteckte Maschine",en:"hidden move",ja:"ひでんわざ"},
+      {icon:"🎓",it:"allenatore",de:"Trainer",en:"trainer",ja:"トレーナー"},
+      {icon:"🏅",it:"campione",de:"Meister",en:"champion",ja:"チャンピオン"},
+      {icon:"🤝",it:"rivale",de:"Rivale",en:"rival",ja:"ライバル"},
+      {icon:"👴",it:"professore",de:"Professor",en:"professor",ja:"博士"},
+      {icon:"🎮",it:"avventura",de:"Abenteuer",en:"adventure",ja:"冒険"},
+      {icon:"📊",it:"statistiche",de:"Statuswerte",en:"stats",ja:"ステータス"},
+      {icon:"🔡",it:"natura",de:"Wesen",en:"nature",ja:"せいかく"},
+      {icon:"🧬",it:"caratteristica",de:"Fähigkeit",en:"ability",ja:"とくせい"},
+      {icon:"🤺",it:"battaglia",de:"Kampf",en:"battle",ja:"バトル"},
+      {icon:"🏟️",it:"stadio",de:"Stadion",en:"stadium",ja:"スタジアム"},
+      {icon:"🎪",it:"torneo",de:"Turnier",en:"tournament",ja:"トーナメント"},
+      {icon:"🌈",it:"arcobaleno",de:"Regenbogen",en:"rainbow",ja:"虹"},
+      {icon:"🎠",it:"giostra",de:"Karussell",en:"carousel",ja:"メリーゴーランド"},
+      {icon:"🎡",it:"ruota panoramica",de:"Riesenrad",en:"ferris wheel",ja:"観覧車"},
+      {icon:"🎪",it:"luna park",de:"Vergnügungspark",en:"amusement park",ja:"遊園地"},
+      {icon:"🎁",it:"premio",de:"Preis",en:"prize",ja:"賞品"},
+      {icon:"🧭",it:"mappa città",de:"Stadtkarte",en:"town map",ja:"タウンマップ"},
+      {icon:"🔗",it:"legame",de:"Freundschaft",en:"friendship",ja:"なかよし度"},
+    ]
+  }
+};
+
+// ===== LOCALE STRINGS =====
+const LOCALE = {
+  it: {
+    logo: "🇮🇹 Italiano Master",
+    milestone: ["Bravo!","Ottimo lavoro!","Magnifico!","Fantastico!","Sei un genio!","Meraviglioso!","Perfetto!","Incredibile!","Straordinario!","Imbattibile!"],
+    quitTitle: "😢 Vuoi davvero arrenderti?",
+    quitBody: "Puoi ancora farcela!<br>Sei quasi al traguardo.",
+    continueBtn: "Continua",
+    giveUpBtn: "Arrendersi",
+    resultTitle: "📜 Risultato",
+    resultText: (s,t) => `Hai risposto correttamente a <strong>${s}</strong> su <strong>${t}</strong>!`,
+    closeBtn: "Chiudi",
+    endBtn: "Fine — Risultato",
+    resetMsg: "Resettato!",
+  },
+  de: {
+    logo: "🇩🇪 Deutsch Meister",
+    milestone: ["Bravo!","Sehr gut!","Ausgezeichnet!","Fantastisch!","Du bist ein Genie!","Wunderbar!","Perfekt!","Unglaublich!","Außergewöhnlich!","Unschlagbar!"],
+    quitTitle: "😢 Wirklich aufgeben?",
+    quitBody: "Du schaffst das noch!<br>Fast am Ziel!",
+    continueBtn: "Weiterspielen",
+    giveUpBtn: "Aufgeben",
+    resultTitle: "📜 Ergebnis",
+    resultText: (s,t) => `Du hast <strong>${s}</strong> von <strong>${t}</strong> richtig beantwortet!`,
+    closeBtn: "Schließen",
+    endBtn: "Beenden — Ergebnis",
+    resetMsg: "Zurückgesetzt!",
+  },
+  en: {
+    logo: "🇬🇧 English Master",
+    milestone: ["Well done!","Excellent!","Magnificent!","Fantastic!","You're a genius!","Wonderful!","Perfect!","Incredible!","Extraordinary!","Unbeatable!"],
+    quitTitle: "😢 Really give up?",
+    quitBody: "You can still do it!<br>Almost there!",
+    continueBtn: "Keep Playing",
+    giveUpBtn: "Give Up",
+    resultTitle: "📜 Results",
+    resultText: (s,t) => `You got <strong>${s}</strong> out of <strong>${t}</strong> correct!`,
+    closeBtn: "Close",
+    endBtn: "Finish — Results",
+    resetMsg: "Reset!",
+  }
+};
+
+// ===== STATE =====
+let currentCat = "verbs";
+let currentLang = "it";
+let solved = {};
+let milestoneCount = 0;
+let accentFree = false;
+let darkMode = true;
+
+function getSolved(cat){ if(!solved[cat]) solved[cat]=new Set(); return solved[cat]; }
+function countAllSolved(){ let n=0; for(const c in solved) n+=solved[c].size; return n; }
+function countAllTotal(){ let n=0; for(const c in WORD_DATA) n+=WORD_DATA[c].words.length; return n; }
+
+function updateScore(){
+  document.getElementById('score-display').innerHTML =
+    `${countAllSolved()} <span>/</span> ${countAllTotal()}`;
+}
+
+// ===== ACCENT NORMALIZATION =====
+function removeAccents(s){
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[ßẞ]/g,(m)=>m==='ß'?'ss':'SS');
+}
+function normalizeStr(s){
+  s = s.trim().toLowerCase().replace(/['']/g,"'");
+  if(accentFree) s = removeAccents(s);
+  return s;
+}
+
+// ===== ARTICLES =====
+const ARTICLES = {
+  it: ["il","lo","la","i","gli","le","l'","l","un","uno","una","un'"],
+  de: ["der","die","das","ein","eine","einen","einem","einer","des","dem","den"],
+  en: ["the","a","an"]
+};
+function checkAnswer(input, correct){
+  const v = normalizeStr(input);
+  let c = normalizeStr(correct);
+  if(v===c) return true;
+  const arts = ARTICLES[currentLang]||[];
+  for(const art of arts){
+    if(v===art+" "+c || v===art+c) return true;
+  }
+  return false;
+}
+
+// ===== AUDIO =====
+let audioCtx = null;
+function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+
+function playPingPong(){
+  try{
+    const ctx=getAudio();
+    [[1318,1567,0,0.25],[1047,1245,0.13,0.38]].forEach(([f1,f2,start,end])=>{
+      const osc=ctx.createOscillator(), g=ctx.createGain();
+      osc.connect(g); g.connect(ctx.destination);
+      osc.type="sine";
+      osc.frequency.setValueAtTime(f1,ctx.currentTime+start);
+      osc.frequency.exponentialRampToValueAtTime(f2,ctx.currentTime+start+0.06);
+      g.gain.setValueAtTime(0,ctx.currentTime+start);
+      g.gain.linearRampToValueAtTime(0.28,ctx.currentTime+start+0.015);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+end);
+      osc.start(ctx.currentTime+start); osc.stop(ctx.currentTime+end);
+    });
+  }catch(e){}
+}
+
+function playTypingASMR(){
+  try{
+    const ctx=getAudio();
+    // Soft mechanical key click
+    const bufferSize=ctx.sampleRate*0.04;
+    const buffer=ctx.createBuffer(1,bufferSize,ctx.sampleRate);
+    const data=buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++) data[i]=(Math.random()*2-1)*(1-i/bufferSize)*0.6;
+    const source=ctx.createBufferSource();
+    source.buffer=buffer;
+    // Low-pass filter for warm thock sound
+    const filter=ctx.createBiquadFilter();
+    filter.type="bandpass";
+    filter.frequency.value=2200+Math.random()*800;
+    filter.Q.value=1.5;
+    const gain=ctx.createGain();
+    gain.gain.setValueAtTime(0.18,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.04);
+    source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+    source.start(); source.stop(ctx.currentTime+0.05);
+    // Subtle resonance click
+    const osc=ctx.createOscillator(), g2=ctx.createGain();
+    osc.connect(g2); g2.connect(ctx.destination);
+    osc.type="sine"; osc.frequency.value=900+Math.random()*200;
+    g2.gain.setValueAtTime(0.05,ctx.currentTime);
+    g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.025);
+    osc.start(); osc.stop(ctx.currentTime+0.025);
+  }catch(e){}
+}
+
+function playSparkle(){
+  try{
+    const ctx=getAudio();
+    [523,659,784,1047,1319,1568].forEach((freq,i)=>{
+      const osc=ctx.createOscillator(),g=ctx.createGain();
+      osc.connect(g); g.connect(ctx.destination);
+      osc.frequency.value=freq; osc.type="sine";
+      const t=ctx.currentTime+i*0.07;
+      g.gain.setValueAtTime(0,t);
+      g.gain.linearRampToValueAtTime(0.13,t+0.03);
+      g.gain.exponentialRampToValueAtTime(0.001,t+0.3);
+      osc.start(t); osc.stop(t+0.3);
+    });
+  }catch(e){}
+}
+
+// ===== HINT =====
+function makeHint(word){
+  if(word.length<=2) return word;
+  return word.slice(0,2)+"◯".repeat(word.length-2);
+}
+
+// ===== SPARKLES =====
+function spawnSparkles(card){
+  const c=card.querySelector('.sparkle-container');
+  if(!c) return;
+  const colors=['#f0c040','#7b6fff','#50e890','#ff8c42','#fff','#ff5566','#00eeff'];
+  for(let i=0;i<22;i++){
+    const s=document.createElement('div');
+    s.className='sparkle';
+    const angle=Math.random()*Math.PI*2, dist=30+Math.random()*50;
+    s.style.cssText=`left:${35+Math.random()*30}%;top:${25+Math.random()*30}%;background:${colors[i%colors.length]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;animation-delay:${Math.random()*0.12}s;width:${4+Math.random()*5}px;height:${4+Math.random()*5}px;`;
+    c.appendChild(s);
+    setTimeout(()=>s.remove(),1000);
+  }
+}
+function addGlitters(card){
+  const icon=card.querySelector('.card-icon');
+  if(!icon) return;
+  for(let i=0;i<3;i++){
+    const g=document.createElement('div');
+    g.className='glitter';
+    g.style.cssText=`left:${10+Math.random()*80}%;top:${5+Math.random()*80}%;animation-delay:${Math.random()*1.5}s;width:${3+Math.random()*4}px;height:${3+Math.random()*4}px;background:${Math.random()>.5?'var(--accent)':'#fff'};`;
+    icon.appendChild(g);
+  }
+}
+
+// ===== MILESTONE =====
+function showMilestone(){
+  const msgs=LOCALE[currentLang].milestone;
+  const msg=msgs[Math.floor(Math.random()*msgs.length)];
+  const el=document.getElementById('milestone-msg');
+  el.textContent=msg;
+  el.classList.add('show');
+  playSparkle();
+  setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+// ===== RENDER =====
+function renderGrid(cat){
+  const data=WORD_DATA[cat];
+  document.getElementById('category-title').textContent=data.title[currentLang]||data.title.it;
+  const grid=document.getElementById('word-grid');
+  grid.innerHTML="";
+  const solvedSet=getSolved(cat);
+  data.words.forEach((w,idx)=>{
+    const isSolved=solvedSet.has(idx);
+    const wordTarget=w[currentLang]||w.it;
+    const card=document.createElement('div');
+    card.className='word-card'+(isSolved?' solved':'');
+    card.dataset.idx=idx;
+    card.innerHTML=`
+      <div class="sparkle-container"></div>
+      <div class="card-icon">${w.icon}</div>
+      <div class="card-answer">${isSolved?wordTarget:''}</div>
+      ${isSolved?'':`<input class="card-input" type="text" placeholder="…" autocomplete="off" spellcheck="false">`}
+      <div class="tooltip">
+        <span class="jp-text">${w.ja}</span>
+        <span class="hint-text"><br>${makeHint(wordTarget)}</span>
+      </div>
+    `;
+    if(isSolved) addGlitters(card);
+    card.addEventListener('mouseenter',(e)=>{
+      const tip=card.querySelector('.tooltip');
+      tip.querySelector('.hint-text').style.display=e.shiftKey?'inline':'none';
+      tip.classList.add('visible');
+    });
+    card.addEventListener('mousemove',(e)=>{
+      card.querySelector('.tooltip').querySelector('.hint-text').style.display=e.shiftKey?'inline':'none';
+    });
+    card.addEventListener('mouseleave',()=>card.querySelector('.tooltip').classList.remove('visible'));
+    if(!isSolved){
+      const input=card.querySelector('.card-input');
+      input.addEventListener('keydown',(e)=>{
+        if(e.key==='Enter') tryAnswer(input,w,idx,card,cat);
+        else if(e.key.length===1) playTypingASMR();
+      });
+      input.addEventListener('input',()=>{
+        if(checkAnswer(input.value,w[currentLang]||w.it)) tryAnswer(input,w,idx,card,cat);
+      });
+    }
+    grid.appendChild(card);
+  });
+}
+
+function tryAnswer(input,word,idx,card,cat){
+  const target=word[currentLang]||word.it;
+  if(!checkAnswer(input.value,target)){
+    input.classList.add('wrong');
+    setTimeout(()=>input.classList.remove('wrong'),400);
+    return;
+  }
+  getSolved(cat).add(idx);
+  card.classList.add('solved');
+  card.querySelector('.card-answer').textContent=target;
+  input.disabled=true;
+  spawnSparkles(card);
+  addGlitters(card);
+  playPingPong();
+  const s=countAllSolved();
+  updateScore();
+  if(s>0&&s%5===0&&Math.floor(s/5)>milestoneCount){
+    milestoneCount=Math.floor(s/5);
+    setTimeout(showMilestone,350);
+  }
+}
+
+// ===== LOCALE UI UPDATE =====
+function applyLocale(){
+  const L=LOCALE[currentLang];
+  document.getElementById('logo-text').textContent=L.logo;
+  document.documentElement.setAttribute('data-lang',currentLang);
+  document.getElementById('quit-title').textContent=L.quitTitle;
+  document.getElementById('quit-body').innerHTML=L.quitBody;
+  document.getElementById('btn-continue').textContent=L.continueBtn;
+  document.getElementById('btn-give-up').textContent=L.giveUpBtn;
+  document.getElementById('result-title').textContent=L.resultTitle;
+  document.getElementById('btn-close-result').textContent=L.closeBtn;
+  document.getElementById('end-label').textContent=L.endBtn;
+  renderGrid(currentCat);
+  updateScore();
+}
+
+// ===== RESULT =====
+function showResult(){
+  const allWords=[];
+  for(const cat in WORD_DATA) WORD_DATA[cat].words.forEach((w,idx)=>allWords.push({...w,cat,idx}));
+  const total=allWords.length;
+  const s=countAllSolved();
+  const L=LOCALE[currentLang];
+  document.getElementById('result-text').innerHTML=L.resultText(s,total);
+  const list=document.getElementById('result-list');
+  list.innerHTML="";
+  const solvedWords=allWords.filter(w=>getSolved(w.cat).has(w.idx));
+  if(!solvedWords.length){
+    list.innerHTML=`<p style="color:var(--text-muted);text-align:center;padding:12px">—</p>`;
+  } else {
+    const hdr=document.createElement('div');
+    hdr.style.cssText='font-size:0.74rem;color:var(--text-muted);margin-bottom:7px;font-weight:700;letter-spacing:1px;';
+    hdr.textContent='✅ 正解した単語';
+    list.appendChild(hdr);
+    solvedWords.forEach(w=>{
+      const item=document.createElement('div');
+      item.className='result-item';
+      item.innerHTML=`<span class="ri-icon">${w.icon}</span><span class="ri-word">${w[currentLang]||w.it}</span><span class="ri-meaning">${w.ja}</span>`;
+      list.appendChild(item);
+    });
+  }
+  document.getElementById('modal-result').classList.add('open');
+}
+
+// Reset all solved state
+function resetAll(){
+  solved={};
+  milestoneCount=0;
+  updateScore();
+  renderGrid(currentCat);
+}
+
+// ===== EVENT LISTENERS =====
+document.getElementById('btn-quit').addEventListener('click',()=>document.getElementById('modal-quit').classList.add('open'));
+document.getElementById('btn-continue').addEventListener('click',()=>document.getElementById('modal-quit').classList.remove('open'));
+document.getElementById('btn-give-up').addEventListener('click',()=>{
+  document.getElementById('modal-quit').classList.remove('open');
+  showResult();
+});
+document.getElementById('btn-end').addEventListener('click',showResult);
+document.getElementById('btn-close-result').addEventListener('click',()=>{
+  document.getElementById('modal-result').classList.remove('open');
+  resetAll();
+});
+
+document.getElementById('cat-select').addEventListener('change',(e)=>{
+  currentCat=e.target.value;
+  renderGrid(currentCat);
+});
+
+document.getElementById('lang-select').addEventListener('change',(e)=>{
+  currentLang=e.target.value;
+  applyLocale();
+});
+
+document.getElementById('accent-toggle').addEventListener('change',(e)=>{
+  accentFree=e.target.checked;
+  renderGrid(currentCat); // re-render hints
+});
+
+document.getElementById('btn-theme').addEventListener('click',()=>{
+  darkMode=!darkMode;
+  document.documentElement.setAttribute('data-theme',darkMode?'dark':'light');
+  document.getElementById('btn-theme').textContent=darkMode?'🌙':'☀️';
+});
+
+// Dropdown arrow SVG (themed)
+function updateSelectArrows(){
+  const col = darkMode ? '%237b6fff' : '%23333399';
+  const arrow = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='${col}' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`;
+  document.querySelectorAll('.styled-select').forEach(s=>s.style.backgroundImage=arrow);
+}
+
+// ===== INIT =====
+updateSelectArrows();
+applyLocale();
+</script>
+</body>
+</html>
