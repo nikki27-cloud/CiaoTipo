@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>CiaoTipo</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Lato:wght@300;400;700&family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Fredoka+One&family=Lato:wght@300;400;700&family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#f5f6fc;--bg2:#eaecf7;--card:#fff;--card-border:#cdd1ec;
@@ -80,10 +80,22 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
 .hdr-btn.danger:hover{background:#c04050;color:#fff;}
 .hdr-btn.accent2{border-color:var(--accent2);color:var(--accent2);}
 .hdr-btn.accent2:hover{background:var(--accent2);color:#fff;}
+.hdr-btn.pts-on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.hdr-btn.pts-on:hover{background:color-mix(in srgb,var(--accent) 80%,#000);}
 
 /* SCOREBAR (multi) */
 #scorebar{display:none;background:var(--bg2);border-bottom:1px solid var(--card-border);padding:5px 18px;gap:10px;flex-wrap:wrap;align-items:center;font-size:.78rem;}
 #scorebar.on{display:flex;}
+/* シングルポイントバー */
+#scorebar.solo{justify-content:center;}
+#scorebar.solo #turn-label{display:none;}
+.sb-my-pts{font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--green);letter-spacing:1px;text-shadow:0 1px 6px rgba(42,158,96,.4);}
+.sb-my-label{font-size:.72rem;color:var(--text-muted);margin-right:4px;}
+/* マルチ：自分のポイント強調 */
+.sb-player-me{font-weight:900;font-size:.92rem;color:var(--text);}
+.sb-player-me .sb-pt-val{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--green);}
+.sb-player-other{opacity:.72;}
+.sb-player-other .sb-pt-val{font-family:'Fredoka One',cursive;}
 .sb-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:3px;}
 #turn-label{font-weight:700;color:var(--accent);padding:3px 9px;background:var(--surface);border-radius:7px;}
 
@@ -92,36 +104,27 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
 .hint-bar kbd{display:inline-block;background:var(--card);border:1px solid var(--card-border);border-radius:4px;padding:1px 6px;font-size:.72rem;font-family:monospace;color:var(--accent);margin:0 1px;}
 .hint-bar .sep{color:var(--card-border);}
 
-/* MILESTONE — comic outline style, no background */
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+/* MILESTONE — image-based, no background */
 #milestone-msg{
-  position:fixed;top:42%;left:50%;
+  position:fixed;top:40%;left:50%;
   transform:translate(-50%,-50%) scale(.5) rotate(-4deg);
-  background:none;border:none;border-radius:0;padding:0;
-  font-family:'Fredoka One',cursive;
-  font-size:3.2rem;font-weight:900;
-  color:#fff;
-  text-align:center;z-index:9999;
-  opacity:0;pointer-events:none;
-  text-shadow:
-    -3px -3px 0 #3a2800,
-     3px -3px 0 #3a2800,
-    -3px  3px 0 #3a2800,
-     3px  3px 0 #3a2800,
-     0    4px 0 #3a2800,
-     4px  0   0 #3a2800,
-    -4px  0   0 #3a2800,
-     0   -4px 0 #3a2800;
-  letter-spacing:2px;
+  background:none;border:none;padding:0;
+  z-index:9999;opacity:0;pointer-events:none;
   transition:opacity .35s, transform .35s cubic-bezier(.175,.885,.32,1.4);
-  filter:drop-shadow(0 4px 18px rgba(0,0,0,.35));
+  text-align:center;
+  filter:drop-shadow(0 6px 24px rgba(0,0,0,.4));
 }
 #milestone-msg.show{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-2deg);}
-#milestone-msg .ms-rainbow{
+#milestone-msg img{max-height:120px;max-width:340px;display:block;}
+/* fallback text (if no image) */
+#milestone-msg .ms-text{
+  font-family:'Fredoka One',cursive;
+  font-size:3rem;font-weight:900;color:#fff;
+  text-shadow:-3px -3px 0 #3a2800,3px -3px 0 #3a2800,-3px 3px 0 #3a2800,3px 3px 0 #3a2800,0 4px 0 #3a2800,0 -4px 0 #3a2800;
+  letter-spacing:2px;
   background:linear-gradient(90deg,#ffb3d1,#b3d1ff,#b3ffce,#fff3b3,#ffb3d1);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  background-size:200%;
-  animation:ms-shift 1.2s linear infinite;
+  background-size:200%;animation:ms-shift 1.2s linear infinite;
 }
 @keyframes ms-shift{to{background-position:200%;}}
 /* bonus popup */
@@ -130,17 +133,47 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
   transform:translate(-50%,-50%) scale(.5);
   background:none;border:none;
   font-family:'Fredoka One',cursive;
-  font-size:2.4rem;font-weight:900;
-  color:#ffe060;
-  text-shadow:
-    -3px -3px 0 #7a4800,3px -3px 0 #7a4800,
-    -3px  3px 0 #7a4800,3px  3px 0 #7a4800,
-     0    4px 0 #7a4800,0   -4px 0 #7a4800;
+  font-size:2.4rem;font-weight:900;color:#ffe060;
+  text-shadow:-3px -3px 0 #7a4800,3px -3px 0 #7a4800,-3px 3px 0 #7a4800,3px 3px 0 #7a4800,0 4px 0 #7a4800,0 -4px 0 #7a4800;
   z-index:9998;opacity:0;pointer-events:none;
-  transition:opacity .3s,transform .35s cubic-bezier(.175,.885,.32,1.4);
-  text-align:center;
+  transition:opacity .3s,transform .35s cubic-bezier(.175,.885,.32,1.4);text-align:center;
 }
 #bonus-msg.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+
+/* PTS POPUP — shown every correct answer, same timing as milestone */
+#pts-popup{
+  position:fixed;top:58%;left:50%;
+  transform:translate(-50%,-50%) translateY(10px);
+  z-index:9997;pointer-events:none;opacity:0;
+  text-align:center;
+  transition:opacity .28s ease-out, transform .32s cubic-bezier(.175,.885,.32,1.275);
+}
+#pts-popup.show{opacity:1;transform:translate(-50%,-50%) translateY(0);}
+.pp-base{
+  display:inline-block;
+  font-family:'Fredoka One',cursive;
+  font-size:1.9rem;font-weight:900;
+  color:#4cdf80;
+  text-shadow:-2px -2px 0 #0a3a1a,2px -2px 0 #0a3a1a,-2px 2px 0 #0a3a1a,2px 2px 0 #0a3a1a,0 3px 0 #0a3a1a;
+  letter-spacing:1px;
+}
+.pp-perfect{
+  display:block;
+  font-family:'Fredoka One',cursive;
+  font-size:1.05rem;font-weight:900;
+  background:linear-gradient(90deg,#cc44ff,#8844ff,#ff44cc);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-shadow:none;
+  margin-bottom:2px;letter-spacing:1.5px;
+}
+.pp-bonus{
+  display:block;
+  font-family:'Fredoka One',cursive;
+  font-size:.95rem;font-weight:900;
+  color:#f0a030;
+  text-shadow:-1px -1px 0 #5a3000,1px -1px 0 #5a3000,-1px 1px 0 #5a3000,1px 1px 0 #5a3000;
+  margin-top:2px;
+}
 
 /* MAIN / GRID */
 main{padding:16px 18px;max-width:1500px;margin:0 auto;}
@@ -185,12 +218,40 @@ main{padding:16px 18px;max-width:1500px;margin:0 auto;}
 .peek-timer{position:absolute;bottom:0;left:0;height:2px;background:linear-gradient(90deg,#d85050,#e8a040);border-radius:0 0 12px 12px;z-index:6;}
 
 /* TRIVIA BTN — solved cards only */
-.trivia-btn{position:absolute;top:4px;left:4px;background:none;border:none;cursor:pointer;font-size:.72rem;padding:1px 3px;opacity:.35;color:var(--accent);transition:opacity .2s;z-index:5;font-weight:700;line-height:1;}
-.trivia-btn:hover,.trivia-btn.active{opacity:1;}
+.trivia-btn{position:absolute;top:4px;left:4px;background:none;border:none;cursor:pointer;font-size:.72rem;padding:1px 3px;opacity:.5;color:var(--accent);transition:opacity .2s;z-index:5;font-weight:700;line-height:1;
+  animation:trivia-wiggle 3.2s ease-in-out infinite;
+  transform-origin:center;
+}
+.trivia-btn:hover,.trivia-btn.active{opacity:1;animation:none;transform:scale(1.3);}
+@keyframes trivia-wiggle{
+  0%,60%,100%{transform:rotate(0deg) scale(1);}
+  65%{transform:rotate(-18deg) scale(1.2);}
+  70%{transform:rotate(14deg) scale(1.25);}
+  75%{transform:rotate(-10deg) scale(1.2);}
+  80%{transform:rotate(6deg) scale(1.1);}
+  85%{transform:rotate(0deg) scale(1);}
+}
 .trivia-popup{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--card-border);border-radius:9px;padding:8px 11px;font-size:.71rem;min-width:155px;max-width:215px;pointer-events:none;z-index:400;box-shadow:0 4px 16px var(--shadow);line-height:1.55;color:var(--text);animation:fadein .14s ease-out;white-space:normal;}
 .trivia-popup b{color:var(--accent);font-size:.68rem;display:block;margin-bottom:2px;letter-spacing:.4px;}
 
-/* BONUS CARD */
+/* WRONG LANG HINT */
+.wrong-lang-hint{
+  position:absolute;inset:0;border-radius:11px;
+  background:rgba(60,60,100,.55);
+  backdrop-filter:blur(3px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:50;pointer-events:none;
+  opacity:0;
+  transition:opacity .35s ease-in;
+  border:1.5px solid rgba(180,180,255,.35);
+}
+.wrong-lang-hint.show{opacity:1;}
+.wrong-lang-hint span{
+  color:#fff;font-size:.68rem;font-weight:700;
+  text-align:center;line-height:1.5;padding:4px 8px;
+  background:rgba(0,0,0,.32);border-radius:7px;
+  text-shadow:0 1px 4px rgba(0,0,0,.6);
+}
 .word-card.bonus-card{animation:bonus-pulse 1s ease-in-out infinite;}
 @keyframes bonus-pulse{
   0%,100%{box-shadow:0 0 7px 1px rgba(255,200,30,.35),0 0 0 0 rgba(255,200,30,0);}
@@ -241,6 +302,20 @@ main{padding:16px 18px;max-width:1500px;margin:0 auto;}
 .result-score{font-size:.96rem;margin-bottom:6px;}
 .result-score strong{color:var(--green);font-size:1.18rem;}
 
+/* RESULT SCORE ANIMATION */
+.rsa-row{display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:7px;font-size:.8rem;font-family:'Lato',sans-serif;opacity:0;transform:translateY(6px);transition:opacity .25s ease-out,transform .25s ease-out;margin-bottom:3px;}
+.rsa-row.in{opacity:1;transform:translateY(0);}
+.rsa-word{font-weight:700;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;}
+.rsa-pts-base{font-weight:900;font-size:.86rem;color:var(--green);}
+.rsa-pts-bonus{font-weight:900;font-size:.86rem;color:#f0a030;}
+.rsa-pts-perfect{font-weight:900;font-size:.86rem;color:#cc44ff;}
+.rsa-badge{font-size:.6rem;padding:1px 5px;border-radius:5px;font-weight:700;white-space:nowrap;}
+.rsa-badge.perfect{background:linear-gradient(90deg,#cc44ff,#8844ff);color:#fff;}
+.rsa-badge.bonus{background:linear-gradient(90deg,#f0a030,#e06010);color:#fff;}
+.rsa-total-num{display:inline-block;font-size:2.2rem;font-weight:900;font-family:'Lato',sans-serif;color:var(--green);min-width:48px;text-align:right;}
+.rsa-total-bump{animation:rsabump .22s ease-out;}
+@keyframes rsabump{0%{transform:scale(1.35) translateY(-3px);color:#60e080;}100%{transform:scale(1);color:var(--green);}}
+
 /* MULTI PANEL */
 #multi-panel{display:none;position:fixed;inset:0;background:var(--bg);z-index:600;overflow-y:auto;padding:22px 18px;}
 #multi-panel.open{display:block;}
@@ -257,6 +332,23 @@ main{padding:16px 18px;max-width:1500px;margin:0 auto;}
 .mp-pts{margin-left:auto;font-weight:700;color:var(--accent);font-size:.78rem;}
 .mp-result-row{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface);border-radius:7px;margin-bottom:5px;font-size:.82rem;}
 .mp-rank{font-weight:700;font-size:.9rem;width:20px;}
+/* ターン数選択ボタン */
+.turn-sel{background:var(--card);border:1.5px solid var(--card-border);border-radius:8px;color:var(--text-muted);padding:5px 11px;font-size:.76rem;cursor:pointer;font-family:'Lato',sans-serif;transition:all .16s;}
+.turn-sel:hover{border-color:var(--accent);color:var(--accent);}
+.turn-sel.selected{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+/* ゲーム終了フラッシュ */
+#game-end-flash{display:none;position:fixed;inset:0;z-index:9500;align-items:center;justify-content:center;pointer-events:none;}
+#game-end-flash.show{display:flex;}
+.game-end-text{font-family:'Fredoka One',cursive;font-size:4.8rem;font-weight:900;
+  background:linear-gradient(135deg,#ffd700 0%,#ff6b35 50%,#ff1493 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 28px rgba(255,180,0,.8));
+  animation:end-pop .6s cubic-bezier(.175,.885,.32,1.4) forwards;opacity:0;}
+@keyframes end-pop{
+  0%{opacity:0;transform:scale(.2) rotate(-10deg);}
+  65%{opacity:1;transform:scale(1.18) rotate(4deg);}
+  100%{opacity:1;transform:scale(1) rotate(0deg);}
+}
 
 /* CURSOR LABELS */
 .cursor-label{position:fixed;pointer-events:none;z-index:7000;display:flex;flex-direction:column;align-items:center;transition:left .06s linear,top .06s linear;}
@@ -266,6 +358,40 @@ main{padding:16px 18px;max-width:1500px;margin:0 auto;}
 /* TURN BANNER */
 #turn-banner{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.7);background:var(--modal-bg);border:2px solid var(--accent);border-radius:14px;padding:14px 30px;font-size:1.05rem;font-weight:700;color:var(--accent);text-align:center;z-index:8000;opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.175,.885,.32,1.275);}
 #turn-banner.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+
+/* NPC操作中オーバーレイ */
+#npc-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.38);
+  backdrop-filter:blur(2px);
+  z-index:7500;pointer-events:all;
+  align-items:center;justify-content:center;
+  flex-direction:column;gap:10px;
+}
+#npc-overlay.show{display:flex;}
+.npc-overlay-box{
+  background:var(--modal-bg);border:2px solid #40c080;
+  border-radius:16px;padding:18px 32px;text-align:center;
+  font-family:'Fredoka One',cursive;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+}
+.npc-overlay-name{font-size:1.1rem;color:#40c080;margin-bottom:4px;}
+.npc-overlay-action{font-size:.88rem;color:var(--text-muted);font-family:'Lato',sans-serif;margin-bottom:10px;letter-spacing:.3px;}
+.npc-card-preview{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:1.5px solid #40c080;border-radius:10px;
+  padding:7px 16px;font-size:1.2rem;letter-spacing:1px;
+  min-width:140px;justify-content:center;
+  font-family:'Lato',sans-serif;font-weight:700;color:var(--text);
+}
+.npc-typing-dots span{
+  display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:#40c080;margin:0 2px;
+  animation:npc-dot .9s infinite ease-in-out;
+}
+.npc-typing-dots span:nth-child(2){animation-delay:.15s;}
+.npc-typing-dots span:nth-child(3){animation-delay:.30s;}
+@keyframes npc-dot{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-7px);}}
 </style>
 </head>
 <body>
@@ -291,7 +417,9 @@ main{padding:16px 18px;max-width:1500px;margin:0 auto;}
       </label>
     </div>
     <button class="hdr-btn" id="btn-theme">🌙</button>
-    <button class="hdr-btn accent2" id="btn-multi">👥 マルチ</button>
+    <button class="hdr-btn" id="btn-bgm-mute" title="BGM ミュート切替">🔊</button>
+    <button class="hdr-btn" id="btn-pts-mode" title="ポイントモード切替">🏆 PT</button>
+    <button class="hdr-btn accent2" id="btn-multi">⚔️ 対戦</button>
     <button class="hdr-btn danger" id="btn-quit">諦める</button>
   </div>
 </header>
@@ -313,9 +441,20 @@ main{padding:16px 18px;max-width:1500px;margin:0 auto;}
   <span>💡 豆知識を表示</span>
 </div>
 
-<div id="milestone-msg"><span class="ms-rainbow"></span></div>
+<div id="milestone-msg"><span class="ms-text"></span></div>
 <div id="bonus-msg"></div>
+<div id="pts-popup"></div>
 <div id="turn-banner"></div>
+<div id="game-end-flash"><div class="game-end-text">終了！</div></div>
+<div id="npc-overlay">
+  <div class="npc-overlay-box">
+    <div class="npc-overlay-name" id="npc-overlay-name">🤖 NPC</div>
+    <div class="npc-overlay-action" id="npc-overlay-action">考え中...</div>
+    <div class="npc-card-preview" id="npc-card-preview">
+      <div class="npc-typing-dots"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</div>
 
 <main>
   <div id="category-title"></div>
@@ -339,8 +478,17 @@ main{padding:16px 18px;max-width:1500px;margin:0 auto;}
 
 <!-- result -->
 <div class="modal-overlay" id="modal-result">
-  <div class="modal-box">
+  <div class="modal-box" style="max-width:560px;width:96%;padding:24px 28px 20px;">
     <p id="result-text" class="result-score"></p>
+    <!-- ポイントアニメーションエリア -->
+    <div id="result-score-anim" style="display:none;margin:10px 0 14px;">
+      <div id="rsa-total-wrap" style="display:flex;align-items:baseline;justify-content:center;gap:6px;margin-bottom:4px;">
+        <span id="rsa-label" style="font-size:.82rem;color:var(--text-muted);">合計ポイント</span>
+        <span id="rsa-total" style="font-size:2.2rem;font-weight:900;font-family:'Lato',sans-serif;color:var(--green);min-width:48px;text-align:right;transition:all .15s;">0</span>
+        <span style="font-size:.9rem;color:var(--text-muted);">pt</span>
+      </div>
+      <div id="rsa-feed" style="max-height:200px;overflow-y:auto;padding-right:2px;"></div>
+    </div>
     <div class="result-list" id="result-list"></div>
     <div class="modal-btns">
       <button class="btn-primary" id="btn-close-result">とじる</button>
@@ -352,15 +500,26 @@ main{padding:16px 18px;max-width:1500px;margin:0 auto;}
 <div id="multi-panel">
   <div class="mp-header">
     <button class="btn-secondary" id="btn-mp-close" style="padding:5px 13px;font-size:.8rem;">← 戻る</button>
-    <h2>👥 マルチプレイ</h2>
+    <h2>⚔️ 対戦モード</h2>
+    <button class="btn-secondary" id="btn-to-single" style="display:none;margin-left:auto;padding:5px 13px;font-size:.8rem;border-color:#c04050;color:#c04050;">🎮 シングルに戻る</button>
   </div>
   <div class="mp-section" id="mps-setup">
     <h3>プレイヤー設定</h3>
     <input class="mp-input" id="mp-name" placeholder="名前（空白でランダム）" maxlength="14">
-    <div style="display:flex;gap:8px;">
+    <div style="margin-bottom:10px">
+      <div style="font-size:.75rem;color:var(--text-muted);font-weight:700;margin-bottom:5px">⏱ ターン数（全員1周＝1ターン）</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="turn-limit-btns">
+        <button class="turn-sel selected" data-v="0">♾ 無制限</button>
+        <button class="turn-sel" data-v="3">3ターン</button>
+        <button class="turn-sel" data-v="5">5ターン</button>
+        <button class="turn-sel" data-v="10">10ターン</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
       <button class="btn-primary" id="btn-host" style="flex:1">🏠 ルームを作る</button>
       <button class="btn-secondary" id="btn-join-show" style="flex:1">🚪 参加する</button>
     </div>
+    <button class="btn-secondary" id="btn-npc" style="width:100%;border-color:#40c080;color:#40c080;">🤖 NPCと対戦（A1レベル）</button>
   </div>
   <div class="mp-section" id="mps-join" style="display:none">
     <h3>あいことばで参加</h3>
@@ -960,19 +1119,26 @@ const GYM_NAMES = ["カスミ","タケシ","エリカ","マチス","キクコ","
 let currentCat="verbs", currentLang="it";
 let solved={}, peeked={}, hinted={}, solvedLang={};
 let milestoneCount=0, accentFree=false;
+let solvedHistory=[]; // {pts, bonusPts, isPerfect, word, lang, cat, idx}
+let wrongCount={}; // key=cat_idx: number of wrong attempts
+let ptsMode=true; // ポイントモードON/OFF
+let soloPts=0;    // シングルプレイ用ポイント
 let manualTheme=null;
 
 // Multi state
 let MP={
   active:false, isHost:false, roomCode:null, myId:null,
   myName:null, myColor:null,
-  players:{}, // id -> {name,color,pts,langPts}
+  players:{},
   turnOrder:[], currentTurnIdx:0,
-  channel:null, // BroadcastChannel
-  peer:null, conns:{}, // PeerJS
+  channel:null,
+  peer:null, conns:{},
   myPts:0, myTeamPts:0,
-  currentEvent:null, // bonus event per turn
+  currentEvent:null,
+  turnLimit:0,   // 0=無制限、3/5/10=ターン数
+  roundCount:0,  // 全員1周したらカウントアップ
 };
+let selectedTurnLimit=0;
 
 const PLAYER_COLORS=["#5b8cfa","#f06090","#40c080","#e8902a","#9b5ce8","#30b8d0","#e8c020","#c05080"];
 
@@ -1010,6 +1176,18 @@ function checkAnswer(inp,correct){
 let actx=null;
 function ac(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();return actx;}
 
+// SE マスターゲイン（0〜1で全SE音量を一括調整）
+let seMasterGain=null;
+function sed(){
+  const ctx=ac();
+  if(!seMasterGain){
+    seMasterGain=ctx.createGain();
+    seMasterGain.gain.value=0.35; // ← ここを変えると全SE音量が変わる
+    seMasterGain.connect(ctx.destination);
+  }
+  return seMasterGain;
+}
+
 // Vibration helper (mobile)
 function vibrate(pattern){try{navigator.vibrate&&navigator.vibrate(pattern);}catch(e){}}
 
@@ -1018,7 +1196,7 @@ function playClick(){
   try{
     const ctx=ac(),now=ctx.currentTime;
     const o=ctx.createOscillator(),g=ctx.createGain();
-    o.connect(g);g.connect(ctx.destination);
+    o.connect(g);g.connect(sed());
     o.type='sine';o.frequency.setValueAtTime(1400,now);o.frequency.exponentialRampToValueAtTime(900,now+.04);
     g.gain.setValueAtTime(.13,now);g.gain.exponentialRampToValueAtTime(.001,now+.06);
     o.start(now);o.stop(now+.07);
@@ -1030,7 +1208,7 @@ function playOpen(){
   try{
     const ctx=ac(),now=ctx.currentTime;
     const o=ctx.createOscillator(),g=ctx.createGain();
-    o.connect(g);g.connect(ctx.destination);
+    o.connect(g);g.connect(sed());
     o.type='sine';o.frequency.setValueAtTime(440,now);o.frequency.exponentialRampToValueAtTime(880,now+.12);
     g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(.09,now+.03);g.gain.exponentialRampToValueAtTime(.001,now+.15);
     o.start(now);o.stop(now+.18);
@@ -1040,7 +1218,7 @@ function playClose(){
   try{
     const ctx=ac(),now=ctx.currentTime;
     const o=ctx.createOscillator(),g=ctx.createGain();
-    o.connect(g);g.connect(ctx.destination);
+    o.connect(g);g.connect(sed());
     o.type='sine';o.frequency.setValueAtTime(880,now);o.frequency.exponentialRampToValueAtTime(330,now+.12);
     g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(.08,now+.02);g.gain.exponentialRampToValueAtTime(.001,now+.14);
     o.start(now);o.stop(now+.16);
@@ -1056,12 +1234,12 @@ function playWrong(){
     const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length)*.9;
     const src=ctx.createBufferSource(),flt=ctx.createBiquadFilter(),g=ctx.createGain();
     flt.type='lowpass';flt.frequency.value=800;
-    src.buffer=buf;src.connect(flt);flt.connect(g);g.connect(ctx.destination);
+    src.buffer=buf;src.connect(flt);flt.connect(g);g.connect(sed());
     g.gain.setValueAtTime(.28,now);g.gain.exponentialRampToValueAtTime(.001,now+.07);
     src.start(now);src.stop(now+.09);
     // Low tone
     const o=ctx.createOscillator(),g2=ctx.createGain();
-    o.connect(g2);g2.connect(ctx.destination);
+    o.connect(g2);g2.connect(sed());
     o.type='triangle';o.frequency.setValueAtTime(220,now);o.frequency.exponentialRampToValueAtTime(110,now+.08);
     g2.gain.setValueAtTime(.18,now);g2.gain.exponentialRampToValueAtTime(.001,now+.09);
     o.start(now);o.stop(now+.1);
@@ -1069,98 +1247,95 @@ function playWrong(){
 }
 
 // Correct answer — Duolingo-style bright ascending chord stab
+// マリンバ1打: 基音+倍音の自然減衰（木の温かみ）
+function strikeMarimba(ctx,dest,freq,t,vol){
+  [[1,.55,.008,.42],[2,.20,.006,.24],[4,.07,.005,.13]].forEach(([harm,v,att,dec])=>{
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='sine';o.frequency.value=freq*harm;
+    o.connect(g);g.connect(dest);
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(vol*v,t+att);
+    g.gain.exponentialRampToValueAtTime(0.001,t+dec);
+    o.start(t);o.stop(t+dec+.02);
+  });
+}
+
+// グロッケン1打: 非整数倍音・金属的に長く鳴る
+function strikeGlock(ctx,dest,freq,t,vol){
+  [[1,.50,.006,.60],[2.76,.26,.005,.34],[5.40,.09,.004,.18]].forEach(([harm,v,att,dec])=>{
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='sine';o.frequency.value=freq*harm;
+    o.connect(g);g.connect(dest);
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(vol*v,t+att);
+    g.gain.exponentialRampToValueAtTime(0.001,t+dec);
+    o.start(t);o.stop(t+dec+.02);
+  });
+}
+
 function playCorrect(totalPts=0){
   try{
-    const ctx=ac(),now=ctx.currentTime;
-    // Scale brightness with pts
-    const vol=Math.min(1, 0.7 + totalPts*0.05);
-    [[523.25,0,.22],[659.25,.05,.2],[783.99,.1,.22],[1046.5,.16,.28]].forEach(([f,t,dur])=>{
-      const o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g);g.connect(ctx.destination);
-      o.type='triangle';o.frequency.value=f;
-      g.gain.setValueAtTime(0,now+t);g.gain.linearRampToValueAtTime(.22*vol,now+t+.018);g.gain.exponentialRampToValueAtTime(.001,now+t+dur);
-      o.start(now+t);o.stop(now+t+dur+.02);
-    });
-    [[392,.06,.18],[523.25,.12,.2]].forEach(([f,t,dur])=>{
-      const o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g);g.connect(ctx.destination);
-      o.type='sine';o.frequency.value=f;
-      g.gain.setValueAtTime(0,now+t);g.gain.linearRampToValueAtTime(.09*vol,now+t+.015);g.gain.exponentialRampToValueAtTime(.001,now+t+dur);
-      o.start(now+t);o.stop(now+t+dur+.02);
-    });
-    // High sparkle — more layers at high pts
-    const sparkCount=totalPts>=8?4:totalPts>=5?2:2;
-    [1318.5,1568,1760,2093].slice(0,sparkCount).forEach((f,i)=>{
-      const o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g);g.connect(ctx.destination);
-      o.type='sine';o.frequency.value=f;
-      const t=now+.14+i*.055;
-      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.07*vol,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+.12);
-      o.start(t);o.stop(t+.14);
-    });
+    const ctx=ac(),dest=sed(),now=ctx.currentTime;
+    const isPerfect=totalPts>=10, isBig=totalPts>=5;
+
+    // マリンバ上昇アルペジオ
+    const mNotes=isPerfect
+      ?[[261.63,0],[329.63,.055],[392,.11],[523.25,.17],[659.25,.225],[783.99,.28]]
+      :isBig
+        ?[[392,.0],[523.25,.065],[659.25,.13],[783.99,.20]]
+        :[[523.25,.0],[659.25,.075],[783.99,.16]];
+    mNotes.forEach(([f,dt])=>strikeMarimba(ctx,dest,f,now+dt,.24));  // 元.36 → ×2/3
+
+    // グロッケン：少し遅れて高音でキラリ
+    const gd=isPerfect?.20:isBig?.15:.12;
+    const gNotes=isPerfect
+      ?[[1046.5,0],[1318.5,.065],[1568,.13],[2093,.20],[2637,.27]]
+      :isBig
+        ?[[1046.5,0],[1318.5,.075],[1568,.15]]
+        :[[1046.5,0],[1318.5,.09]];
+    gNotes.forEach(([f,dt])=>strikeGlock(ctx,dest,f,now+gd+dt,.19));  // 元.28 → ×2/3
+
+    // パーフェクト：低音マリンバ＋グロッケン余韻シマー
+    if(isPerfect){
+      [[130.81,0],[196,.045],[261.63,.09]].forEach(([f,dt])=>strikeMarimba(ctx,dest,f,now+dt,.15));  // 元.22
+      [3136,3520,4186].forEach((f,i)=>strikeGlock(ctx,dest,f,now+.42+i*.065,.09));  // 元.13
+    }
   }catch(e){}
 }
 
-// Bonus SE — fanfare stab
+// Bonus SE — マリンバ＋グロッケンファンファーレ
 function playBonus(bonusPts=1){
   try{
-    const ctx=ac(),now=ctx.currentTime;
-    const vol=Math.min(1,.7+bonusPts*.15);
-    // Ascending thirds
-    [[523.25,0,.2],[659.25,.07,.2],[783.99,.14,.2],[1046.5,.21,.26],[1318.5,.28,.28]].forEach(([f,t,dur])=>{
-      const o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g);g.connect(ctx.destination);
-      o.type='triangle';o.frequency.value=f;
-      g.gain.setValueAtTime(0,now+t);g.gain.linearRampToValueAtTime(.26*vol,now+t+.016);g.gain.exponentialRampToValueAtTime(.001,now+t+dur);
-      o.start(now+t);o.stop(now+t+dur+.02);
-    });
-    // Shimmering highs
-    [2093,2637].forEach((f,i)=>{
-      const o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g);g.connect(ctx.destination);
-      o.type='sine';o.frequency.value=f;
-      const t=now+.3+i*.07;
-      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.09*vol,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+.18);
-      o.start(t);o.stop(t+.2);
-    });
-    // Bass punch
+    const ctx=ac(),dest=sed(),now=ctx.currentTime;
+    // マリンバ：5度上昇
+    [[392,0],[523.25,.06],[659.25,.12],[783.99,.19],[1046.5,.26]].forEach(([f,dt])=>strikeMarimba(ctx,dest,f,now+dt,.27));  // 元.40
+    // グロッケン：3連シマー
+    [[1568,.22],[2093,.29],[2637,.36]].forEach(([f,dt])=>strikeGlock(ctx,dest,f,now+dt,.20));  // 元.30
+    // 低音パンチ
     const o=ctx.createOscillator(),g=ctx.createGain();
-    o.connect(g);g.connect(ctx.destination);
     o.type='sine';o.frequency.setValueAtTime(130,now);o.frequency.exponentialRampToValueAtTime(65,now+.15);
-    g.gain.setValueAtTime(.2*vol,now);g.gain.exponentialRampToValueAtTime(.001,now+.2);
+    o.connect(g);g.connect(dest);
+    g.gain.setValueAtTime(.22,now);g.gain.exponentialRampToValueAtTime(.001,now+.2);
     o.start(now);o.stop(now+.22);
   }catch(e){}
 }
 
-// 5-question milestone fanfare
+// 5問マイルストーン — マリンバ＋グロッケン豪華ファンファーレ
 function playMilestone(){
   try{
-    const ctx=ac(),now=ctx.currentTime;
-    const melody=[523.25,659.25,783.99,1046.5,1318.5,1046.5,1318.5,1568];
-    const times=[0,.045,.09,.135,.18,.24,.28,.32];
-    const durs=[.18,.18,.18,.2,.18,.14,.14,.35];
-    melody.forEach((f,i)=>{
-      const o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g);g.connect(ctx.destination);
-      o.type=i<4?'triangle':'sine';o.frequency.value=f;
-      const t=now+times[i];
-      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.26,t+.015);g.gain.exponentialRampToValueAtTime(.001,t+durs[i]);
-      o.start(t);o.stop(t+durs[i]+.02);
-    });
-    [130.81,196].forEach((f,i)=>{
-      const o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g);g.connect(ctx.destination);
-      o.type='sine';o.frequency.value=f;
-      const t=now+i*.05;
-      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.2,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.28);
-      o.start(t);o.stop(t+.32);
-    });
-    const buf=ctx.createBuffer(1,ctx.sampleRate*.06,ctx.sampleRate);
-    const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length)*.5;
-    const src=ctx.createBufferSource(),gn=ctx.createGain();
-    src.buffer=buf;src.connect(gn);gn.connect(ctx.destination);
-    gn.gain.setValueAtTime(.12,now);gn.gain.exponentialRampToValueAtTime(.001,now+.06);
-    src.start(now);src.stop(now+.08);
+    const ctx=ac(),dest=sed(),now=ctx.currentTime;
+    // マリンバ: 低→高へ8音スケール
+    [[261.63,0],[329.63,.05],[392,.10],[523.25,.15],[659.25,.20],[783.99,.26],[1046.5,.32],[783.99,.39]]
+      .forEach(([f,dt])=>strikeMarimba(ctx,dest,f,now+dt,.29));  // 元.44
+    // グロッケン: 4音アルペジオ＋頂点で和音
+    [[1046.5,.12],[1318.5,.19],[1568,.26],[2093,.33]].forEach(([f,dt])=>strikeGlock(ctx,dest,f,now+dt,.21));  // 元.32
+    // 頂点和音（グロッケン）
+    [1568,2093,2637].forEach((f,i)=>strikeGlock(ctx,dest,f,now+.44,.19));  // 元.28
+    // 余韻シマー
+    [3136,4186].forEach((f,i)=>strikeGlock(ctx,dest,f,now+.54+i*.07,.11));  // 元.16
+    // 低音マリンバ根音
+    strikeMarimba(ctx,dest,130.81,now,.19);  // 元.28
+    strikeMarimba(ctx,dest,196,now+.04,.15);  // 元.22
   }catch(e){}
 }
 
@@ -1171,21 +1346,106 @@ function playTyping(){
     const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length)*.55;
     const src=ctx.createBufferSource(),flt=ctx.createBiquadFilter(),g=ctx.createGain();
     flt.type='bandpass';flt.frequency.value=2400+Math.random()*700;flt.Q.value=1.4;
-    src.buffer=buf;src.connect(flt);flt.connect(g);g.connect(ctx.destination);
-    g.gain.setValueAtTime(.16,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.038);
+    src.buffer=buf;src.connect(flt);flt.connect(g);g.connect(sed());
+    g.gain.setValueAtTime(.22,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.038);  // 元.16 → ×1.4
     const o=ctx.createOscillator(),g2=ctx.createGain();
     o.type='sine';o.frequency.value=880+Math.random()*180;
-    o.connect(g2);g2.connect(ctx.destination);
-    g2.gain.setValueAtTime(.04,ctx.currentTime);g2.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.022);
+    o.connect(g2);g2.connect(sed());
+    g2.gain.setValueAtTime(.056,ctx.currentTime);g2.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.022);  // 元.04 → ×1.4
     src.start();src.stop(ctx.currentTime+.05);
     o.start();o.stop(ctx.currentTime+.025);
   }catch(e){}
+}
+
+// 砂時計カチッ音 (peek中) — 時計のセット音風
+let tickInterval=null;
+function startTick(){
+  stopTick();
+  tickInterval=setInterval(()=>{
+    try{
+      const ctx=ac(),now=ctx.currentTime;
+      // メカニカルなクリック：高域ノイズバースト＋短い金属トーン
+      const buf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*.018),ctx.sampleRate);
+      const d=buf.getChannelData(0);
+      for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+      const src=ctx.createBufferSource(),flt=ctx.createBiquadFilter(),gn=ctx.createGain();
+      flt.type='highpass';flt.frequency.value=4000;
+      src.buffer=buf;src.connect(flt);flt.connect(gn);gn.connect(sed());
+      gn.gain.setValueAtTime(.18,now);gn.gain.exponentialRampToValueAtTime(.001,now+.018);
+      src.start(now);src.stop(now+.02);
+      // 金属トーン：2音で「カチッ」感
+      [[2800,.0,.012],[4200,.006,.009]].forEach(([f,dt,dec])=>{
+        const o=ctx.createOscillator(),g=ctx.createGain();
+        o.type='sine';o.frequency.value=f;
+        o.connect(g);g.connect(sed());
+        g.gain.setValueAtTime(.09,now+dt);g.gain.exponentialRampToValueAtTime(.001,now+dt+dec);
+        o.start(now+dt);o.stop(now+dt+dec+.005);
+      });
+    }catch(e){}
+  },1000);
+}
+function stopTick(){if(tickInterval){clearInterval(tickInterval);tickInterval=null;}}
+
+// 発音 (Web Speech Synthesis)
+// 音声リストを事前ロード（初回アクセス時に取得が必要なブラウザ対策）
+if(window.speechSynthesis){
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.addEventListener('voiceschanged',()=>window.speechSynthesis.getVoices(),{once:true});
+}
+
+function playPronunciation(text,lang){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const doSpeak=()=>{
+    const utt=new SpeechSynthesisUtterance(text);
+    utt.lang=lang||'it-IT';
+    utt.rate=0.85;utt.pitch=1.05;utt.volume=0.67;
+    utt.onstart=()=>bgmDuck&&bgmDuck(0.08,99999);
+    utt.onend=utt.onerror=()=>onModalClose&&onModalClose();
+    // 言語に合う声を探して設定
+    const voices=window.speechSynthesis.getVoices();
+    const voice=voices.find(v=>v.lang.startsWith(lang?.split('-')[0]||'it'));
+    if(voice)utt.voice=voice;
+    window.speechSynthesis.speak(utt);
+  };
+  setTimeout(doSpeak,80);
 }
 
 // ================================================================
 // HINT
 // ================================================================
 function makeHint(w){if(w.length<=2)return w;return w.slice(0,2)+"◯".repeat(w.length-2);}
+
+// Shiftキー状態グローバル追跡
+let shiftHeld=false;
+document.addEventListener('keydown',e=>{
+  if(e.key==='Shift'){
+    shiftHeld=true;
+    document.querySelectorAll('.word-card:not(.solved)').forEach(card=>{
+      if(card.matches(':hover')&&!card.querySelector('.shift-hint')){
+        const hint=card.dataset.hint;
+        if(hint){
+          const h=document.createElement('div');h.className='peek-reveal shift-hint';
+          h.style.background='rgba(168,100,0,.88)';h.textContent=hint;card.appendChild(h);
+        }
+      }
+    });
+  }
+});
+document.addEventListener('keyup',e=>{
+  if(e.key==='Shift'){
+    shiftHeld=false;
+    document.querySelectorAll('.shift-hint').forEach(el=>el.remove());
+  }
+});
+
+function showShiftHint(card,target,cat,idx){
+  if(card.querySelector('.shift-hint'))return;
+  const h=document.createElement('div');h.className='peek-reveal shift-hint';
+  h.style.background='rgba(168,100,0,.88)';
+  h.textContent=makeHint(target);
+  card.appendChild(h);
+}
 
 function getTrivia(word){
   // Check exact match, then partial
@@ -1303,13 +1563,37 @@ function generateBonusEvent(){
   // Re-render grid to show bonus card glow
   renderGrid(currentCat);
 }
+// ================================================================
+// MILESTONE IMAGE SYSTEM
+// ================================================================
+const MILESTONE_IMGS={
+  it:['Bravo','Fantastico','Magnifico','Leggendario_it'],
+  de:['Super','Klasse','Fantastisch','Legendär'],
+  en:['Great','Awesome','Amazing','Legendary_en'],
+};
+const MILESTONE_TXT={
+  it:['Bravo!','Fantastico!','Magnifico!','Leggendario!'],
+  de:['Super!','Klasse!','Fantastisch!','Legendär!'],
+  en:['Great!','Awesome!','Amazing!','Legendary!'],
+};
 function showMilestone(){
-  const msgs=LOCALE[currentLang].milestone;
   const el=document.getElementById('milestone-msg');
-  const span=el.querySelector('.ms-rainbow');
-  span.textContent=msgs[Math.floor(Math.random()*msgs.length)];
+  const imgs=MILESTONE_IMGS[currentLang]||MILESTONE_IMGS.it;
+  const txts=MILESTONE_TXT[currentLang]||MILESTONE_TXT.it;
+  const pick=Math.floor(Math.random()*imgs.length);
+  const span=el.querySelector('.ms-text');
+  el.querySelectorAll('img').forEach(i=>i.remove());
+  // Try image first
+  const img=document.createElement('img');
+  img.alt=txts[pick];
+  img.onload=()=>{span.style.display='none';img.style.display='block';};
+  img.onerror=()=>{span.textContent=txts[pick];span.style.display='';img.remove();};
+  img.style.display='none';
+  img.src=`assets/img/${imgs[pick]}.png`;
+  el.appendChild(img);
+  span.textContent=txts[pick];span.style.display='';
   el.classList.add('show');playMilestone();
-  setTimeout(()=>el.classList.remove('show'),2800);
+  setTimeout(()=>{el.classList.remove('show');span.style.display='none';},2800);
 }
 
 // ================================================================
@@ -1328,18 +1612,21 @@ function handlePeek(btn,word,idx,cat,card){
   requestAnimationFrame(()=>{tb.style.transition=`width ${PEEK_DUR}ms linear`;tb.style.width='0%';});
   const inp=card.querySelector('.card-input');
   if(inp){inp.style.borderColor='#c86060';inp.focus();}
-  // Award 1pt (peeked)
   awardPts(1,'peek');
+  startTick(); // チクタク開始
   peekTimers[key]=setTimeout(()=>{
     rv.remove();tb.remove();btn.classList.remove('peeking');
     delete peekTimers[key];
     if(inp)inp.style.borderColor='';
+    stopTick(); // チクタク停止
   },PEEK_DUR);
 }
 
 // ================================================================
-// TRIVIA POPUP
+// TRIVIA POPUP — 3種ランダム表示
 // ================================================================
+const TRIVIA_ICONS=['📖','🎓','💬'];
+const TRIVIA_LABELS=['語形変化','語源・派生','使い方'];
 let triviaOpenCard=null;
 function handleTrivia(btn,word,card){
   const trivs=getTrivia(word[currentLang]||word.it)||getTrivia(word.it)||getTrivia(word.de)||getTrivia(word.en);
@@ -1350,9 +1637,13 @@ function handleTrivia(btn,word,card){
   if(triviaOpenCard)closeTrivia(triviaOpenCard);
   triviaOpenCard=card;
   btn.classList.add('active');
+  // Pick up to 3 random distinct entries
+  const shuffled=[...trivs].sort(()=>Math.random()-.5).slice(0,Math.min(3,trivs.length));
   const pop=document.createElement('div');pop.className='trivia-popup';
-  const tv=trivs[Math.floor(Math.random()*trivs.length)];
-  pop.innerHTML=`<b>💡 豆知識</b>${tv}`;
+  pop.innerHTML=`<b>💡 豆知識</b>`+shuffled.map((t,i)=>{
+    const icon=TRIVIA_ICONS[i%3];
+    return `<div style="margin-top:3px"><span style="color:var(--accent);margin-right:3px">${icon}</span>${t}</div>`;
+  }).join('');
   card.appendChild(pop);
 }
 function closeTrivia(card){
@@ -1371,10 +1662,13 @@ function renderGrid(cat){
   data.words.forEach((w,idx)=>{
     const isSolved=solSet.has(idx);
     const target=w[currentLang]||w.it;
-    const hasTv=!!(getTrivia(target)||getTrivia(w.it)||getTrivia(w.de)||getTrivia(w.en));
+    const rawHasTv=!!(getTrivia(target)||getTrivia(w.it)||getTrivia(w.de)||getTrivia(w.en));
+    // TRIVIAデータがあるクリア済みカードには全部ボタンを表示
+    const hasTv=isSolved&&rawHasTv;
     const card=document.createElement('div');
     card.className='word-card'+(isSolved?' solved':'');
     card.dataset.idx=idx;
+    if(!isSolved) card.dataset.hint=makeHint(target);
     const HOURGLASS=`<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M6 2h12v4l-4 4 4 4v4H6v-4l4-4-4-4V2zm2 1v2.586l4 4 4-4V3H8zm8 14v-2.586l-4-4-4 4V17h8z"/></svg>`;
     card.innerHTML=`
       <div class="sparkle-container"></div>
@@ -1385,7 +1679,20 @@ function renderGrid(cat){
       <div class="card-answer">${isSolved?target:''}</div>
       ${isSolved?'':`<input class="card-input" type="text" placeholder="…" autocomplete="off" spellcheck="false">`}
     `;
-    if(isSolved)addSoftSparkles(card);
+    addSoftSparkles(card);
+    if(isSolved){
+      // クリア済みカードをクリックで発音
+      const langVoiceMap={it:'it-IT',de:'de-DE',en:'en-GB'};
+      card.style.cursor='pointer';
+      card.addEventListener('click',e=>{
+        if(e.target.classList.contains('trivia-btn'))return;
+        const voiceLang=langVoiceMap[currentLang]||'it-IT';
+        playPronunciation(target,voiceLang);
+        // small visual feedback
+        card.style.transform='scale(.97)';
+        setTimeout(()=>card.style.transform='',120);
+      });
+    }
     // trivia — SOLVED cards only
     if(isSolved&&hasTv){
       const tb=card.querySelector('.trivia-btn');
@@ -1393,21 +1700,14 @@ function renderGrid(cat){
       tb.addEventListener('touchstart',e=>{e.stopPropagation();handleTrivia(tb,w,card);},{passive:true});
     }
     // hover hint (shift) + close trivia on click elsewhere
-    card.addEventListener('mousemove',e=>{
-      if(e.shiftKey&&!isSolved){
-        if(!card.querySelector('.shift-hint')){
-          getHinted(cat).add(idx);
-          awardPts(-3,'hint');
-          const h=document.createElement('div');h.className='peek-reveal shift-hint';
-          h.style.background='rgba(168,100,0,.88)';
-          h.textContent=makeHint(target);card.appendChild(h);
-        }
-      } else {
-        card.querySelector('.shift-hint')?.remove();
-      }
+    // Shiftキー状態をグローバル追跡して確実に検知
+    card.addEventListener('mouseenter',()=>{
+      if(shiftHeld&&!isSolved) showShiftHint(card,target,cat,idx);
+    });
+    card.addEventListener('mousemove',()=>{
+      if(shiftHeld&&!isSolved&&!card.querySelector('.shift-hint')) showShiftHint(card,target,cat,idx);
     });
     card.addEventListener('mouseleave',()=>card.querySelector('.shift-hint')?.remove());
-    document.addEventListener('click',e=>{if(triviaOpenCard===card&&!card.contains(e.target)){closeTrivia(card);triviaOpenCard=null;}},{once:false});
     // peek
     if(!isSolved){
       const peekBtn=card.querySelector('.peek-btn');
@@ -1443,12 +1743,22 @@ function renderGrid(cat){
 function tryAnswer(inp,word,idx,card,cat){
   const target=word[currentLang]||word.it;
   if(!checkAnswer(inp.value,target)){
+    // 他言語の答えかチェック
+    const otherLangs=[['it','イタリア語'],['de','ドイツ語'],['en','英語']].filter(([l])=>l!==currentLang);
+    let langMatch=null;
+    for(const [l,name] of otherLangs){
+      const alt=word[l]||'';
+      if(alt&&checkAnswer(inp.value,alt)){langMatch=name;break;}
+    }
     inp.classList.add('wrong');setTimeout(()=>inp.classList.remove('wrong'),320);
     playWrong();
+    if(langMatch)showWrongLangHint(card,langMatch);
+    // 誤答カウント
+    const wk=`${cat}_${idx}`;wrongCount[wk]=(wrongCount[wk]||0)+1;
     return;
   }
   const key=`${cat}_${idx}`;
-  if(peekTimers[key]){clearTimeout(peekTimers[key]);delete peekTimers[key];card.querySelector('.peek-reveal')?.remove();card.querySelector('.peek-timer')?.remove();}
+  if(peekTimers[key]){clearTimeout(peekTimers[key]);delete peekTimers[key];card.querySelector('.peek-reveal')?.remove();card.querySelector('.peek-timer')?.remove();stopTick();}
   getSolved(cat).add(idx);
   getSolvedLang(cat)[idx]=currentLang;
   card.classList.add('solved');
@@ -1459,20 +1769,20 @@ function tryAnswer(inp,word,idx,card,cat){
 
   const wasPeeked=getPeeked(cat).has(idx);
   const wasHinted=getHinted(cat).has(idx);
+  const wasWrong=(wrongCount[`${cat}_${idx}`]||0)>0;
+  const isPerfect=!wasPeeked&&!wasHinted&&!wasWrong;
   let pts=wasPeeked?1:wasHinted?2:5;
+  if(isPerfect)pts*=2; // パーフェクト×2
 
   // Check bonus events (multiplay)
   let bonusPts=0;
   if(MP.active&&MP.currentEvent){
     const ev=MP.currentEvent;
-    // Event 1: bonus lang
-    if(ev.type==='lang'&&currentLang===ev.lang){bonusPts+=ev.pts;}
-    // Event 2: bonus card
+    if(ev.type==='lang'&&currentLang===ev.lang){bonusPts+=ev.langPts||1;}
     if((ev.type==='card'||ev.type==='both')&&card.classList.contains('bonus-card')){bonusPts+=ev.cardPts||2;}
-    if((ev.type==='lang'||ev.type==='both')&&currentLang===ev.lang){bonusPts+=ev.langPts||0;}
+    if(ev.type==='both'&&currentLang===ev.lang){bonusPts+=ev.langPts||1;}
   }
 
-  // Track per-lang pts
   if(MP.active){
     const me=MP.players[MP.myId];
     if(me){
@@ -1481,15 +1791,19 @@ function tryAnswer(inp,word,idx,card,cat){
     }
   }
 
+  // 履歴記録
+  solvedHistory.push({pts,bonusPts,isPerfect,word,lang:currentLang,cat,idx});
+
   spawnPikmin(card);addSoftSparkles(card);
   playCorrect(pts+bonusPts);
-  vibrate(bonusPts>0?[30,20,60]:40);
+  vibrate(bonusPts>0?[30,20,60]:isPerfect?[20,10,20,10,40]:40);
+
+  if(ptsMode) showPtsPopup(pts,bonusPts,isPerfect);
 
   if(bonusPts>0){
     awardPts(pts,'correct');
     awardPts(bonusPts,'bonus');
-    showBonus(bonusPts,card);
-    // Clear bonus card glow from card
+    if(ptsMode) showBonus(bonusPts,card);
     card.classList.remove('bonus-card');
     card.querySelector('.bonus-badge')?.remove();
   } else {
@@ -1499,8 +1813,77 @@ function tryAnswer(inp,word,idx,card,cat){
   updateScore();
   const s=countSolved();
   if(s>0&&s%5===0&&Math.floor(s/5)>milestoneCount){milestoneCount=Math.floor(s/5);setTimeout(showMilestone,350);}
-  mpBroadcast({type:'solved',cat,idx,lang:currentLang,pts,bonusPts});
-  if(MP.active)nextTurn();
+  mpBroadcast({type:'solved',cat,idx,lang:currentLang,pts,bonusPts,isPerfect});
+
+  // 正解後：発音リスナーをカードに付与（renderGrid呼び直しなしで動作させる）
+  const langVoiceMap={it:'it-IT',de:'de-DE',en:'en-GB'};
+  card.style.cursor='pointer';
+  card.addEventListener('pointerup',e=>{
+    if(e.target.closest('.trivia-btn,.trivia-popup'))return;
+    playPronunciation(target,langVoiceMap[currentLang]||'it-IT');
+    card.style.transform='scale(.97)';
+    setTimeout(()=>card.style.transform='',120);
+  });
+  // triviaリスナーも正解直後に付与
+  const trivData=getTrivia(target)||getTrivia(word.it)||getTrivia(word.de)||getTrivia(word.en);
+  if(trivData){
+    const tbNew=document.createElement('button');
+    tbNew.className='trivia-btn';tbNew.title='豆知識';tbNew.textContent='💡';
+    card.insertBefore(tbNew,card.firstChild);
+    tbNew.addEventListener('click',e=>{e.stopPropagation();playClick();handleTrivia(tbNew,word,card);});
+  }
+
+  // ターン表示はポイント表示の後
+  if(MP.active){
+    const popHold=ptsMode?(bonusPts>0?2050:isPerfect?1850:1450):200;
+    setTimeout(()=>nextTurn(), popHold);
+  }
+}
+
+// ================================================================
+// PTS POPUP — 毎正解ごと表示
+// ================================================================
+let ptsPopupTimer=null;
+function showPtsPopup(pts,bonusPts,isPerfect){
+  if(ptsPopupTimer)clearTimeout(ptsPopupTimer);
+  const el=document.getElementById('pts-popup');
+  el.classList.remove('show');
+
+  // Build content
+  let html='';
+  if(isPerfect){
+    const half=pts/2;
+    html+=`<span class="pp-perfect">✨ PERFECT × 2</span>`;
+    html+=`<span class="pp-base">+${pts}pt</span>`;
+  } else {
+    html+=`<span class="pp-base">+${pts}pt</span>`;
+  }
+  if(bonusPts>0){
+    html+=`<span class="pp-bonus">🌟 ボーナス +${bonusPts}pt</span>`;
+  }
+  el.innerHTML=html;
+
+  // pop in — small delay so it appears just after pikmin burst
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('show')));
+
+  const holdMs=bonusPts>0?2000:isPerfect?1800:1400;
+  ptsPopupTimer=setTimeout(()=>{
+    el.classList.remove('show');
+  },holdMs);
+}
+let wrongLangTimer=null;
+function showWrongLangHint(card,langName){
+  if(wrongLangTimer)clearTimeout(wrongLangTimer);
+  card.querySelector('.wrong-lang-hint')?.remove();
+  const overlay=document.createElement('div');
+  overlay.className='wrong-lang-hint';
+  overlay.innerHTML=`<span>それは${langName}かも？🤔</span>`;
+  card.appendChild(overlay);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>overlay.classList.add('show')));
+  wrongLangTimer=setTimeout(()=>{
+    overlay.classList.remove('show');
+    setTimeout(()=>overlay.remove(),400);
+  },2200);
 }
 
 // ================================================================
@@ -1522,6 +1905,9 @@ function applyLocale(){
 // RESULT
 // ================================================================
 const FLAG={it:'🇮🇹',de:'🇩🇪',en:'🇬🇧'};
+// ================================================================
+// RESULT — animated score reveal
+// ================================================================
 function showResult(){
   const all=[];
   for(const cat in WORD_DATA)WORD_DATA[cat].words.forEach((w,idx)=>all.push({...w,cat,idx}));
@@ -1530,6 +1916,8 @@ function showResult(){
   let html=LOCALE[currentLang].resultText(s,total);
   if(pks>0)html+=`<br><span style="font-size:.79rem;color:var(--text-muted)">（うち ⏳ 見て正解: ${pks}問）</span>`;
   document.getElementById('result-text').innerHTML=html;
+
+  // ── word list (scrollable) ──
   const list=document.getElementById('result-list');list.innerHTML='';
   const sw=all.filter(w=>getSolved(w.cat).has(w.idx));
   if(!sw.length){list.innerHTML='<p style="color:var(--text-muted);text-align:center;padding:12px">—</p>';}
@@ -1545,6 +1933,8 @@ function showResult(){
       list.appendChild(item);
     });
   }
+
+  // ── MP scores ──
   if(MP.active){
     const mr=document.getElementById('mp-result-list');mr.innerHTML='';
     const players=Object.values(MP.players).sort((a,b)=>b.pts-a.pts);
@@ -1558,13 +1948,39 @@ function showResult(){
     });
     document.getElementById('mps-result').style.display='block';
   }
+
   document.getElementById('modal-result').classList.add('open');
+
+  // ── アニメーション開始 ──
+  if(solvedHistory.length>0){
+    const animEl=document.getElementById('result-score-anim');
+    const feedEl=document.getElementById('rsa-feed');
+    const totalEl=document.getElementById('rsa-total');
+    animEl.style.display='block';
+    feedEl.innerHTML='';
+    totalEl.textContent='0';
+    runScoreAnimation(feedEl,totalEl,0,0);
+  }
 }
 
 function resetAll(){
   solved={};peeked={};hinted={};solvedLang={};milestoneCount=0;
+  wrongCount={};solvedHistory={};solvedHistory=[];soloPts=0;
   for(const k in peekTimers)clearTimeout(peekTimers[k]);
-  peekTimers={};updateScore();renderGrid(currentCat);
+  peekTimers={};
+  // reset result anim
+  const animEl=document.getElementById('result-score-anim');
+  if(animEl)animEl.style.display='none';
+  // reset pts popup
+  if(ptsPopupTimer)clearTimeout(ptsPopupTimer);
+  document.getElementById('pts-popup').classList.remove('show');
+  // reset MP pts
+  if(MP.active){
+    MP.myPts=0;
+    for(const id in MP.players){MP.players[id].pts=0;MP.players[id].langPts={it:0,de:0,en:0};}
+    updateScorebar();
+  }
+  updateScore();renderGrid(currentCat);
 }
 
 // ================================================================
@@ -1577,6 +1993,52 @@ function applyTheme(){
   const col=dark?'%238a7aff':'%236b5fdd';
   const arr=`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='8' viewBox='0 0 11 8'%3E%3Cpath d='M1 1l4.5 5 4.5-5' stroke='${col}' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`;
   document.querySelectorAll('.styled-select').forEach(s=>s.style.backgroundImage=arr);
+}
+
+// ================================================================
+// GAME END EFFECT & RESULT
+// ================================================================
+function showGameEnd(){
+  // 終了エフェクト
+  const flash=document.getElementById('game-end-flash');
+  flash.classList.add('show');
+  // テキストをリセットしてアニメ再生
+  const txt=flash.querySelector('.game-end-text');
+  txt.style.animation='none';
+  void txt.offsetWidth;
+  txt.style.animation='end-pop .6s cubic-bezier(.175,.885,.32,1.4) forwards';
+  // ファンファーレSE
+  playMilestone&&playMilestone();
+  // 1.8秒後にエフェクト消してリザルト表示
+  setTimeout(()=>{
+    flash.classList.remove('show');
+    showMPResult();
+  },1800);
+}
+
+function showMPResult(){
+  const mr=document.getElementById('mp-result-list');mr.innerHTML='';
+  const players=Object.values(MP.players)
+    .filter(p=>p.name&&p.name!=='NPC')
+    .sort((a,b)=>b.pts-a.pts)
+    .slice(0,4);
+  const medals=['🥇','🥈','🥉','4位'];
+  players.forEach((p,i)=>{
+    const row=document.createElement('div');row.className='mp-result-row';
+    const lp=p.langPts||{it:0,de:0,en:0};
+    row.innerHTML=`
+      <span class="mp-rank">${medals[i]||i+1}</span>
+      <span class="mp-pdot" style="background:${p.color}"></span>
+      <div style="flex:1">
+        <div style="font-weight:700">${p.name}${i===0?'　<span style="font-size:.8rem">👑</span>':''}</div>
+        <div style="font-size:.66rem;color:var(--text-muted);margin-top:2px">🇮🇹 ${lp.it||0}pt　🇩🇪 ${lp.de||0}pt　🇬🇧 ${lp.en||0}pt</div>
+      </div>
+      <span style="font-size:1rem;font-weight:800;color:var(--accent)">${p.pts||0}<small style="font-size:.6em;margin-left:2px">pt</small></span>`;
+    mr.appendChild(row);
+  });
+  document.getElementById('mps-result').style.display='block';
+  document.getElementById('multi-panel').classList.add('open');
+  onModalOpen&&onModalOpen();
 }
 
 // ================================================================
@@ -1595,30 +2057,42 @@ function getMyColor(){
 
 // Points tracking
 function awardPts(delta,reason){
-  if(!MP.active)return;
-  MP.myPts+=delta;
-  const me=MP.players[MP.myId];
-  if(me){
-    me.pts=MP.myPts;
-    // langPts updated in tryAnswer directly
+  if(MP.active){
+    MP.myPts+=delta;
+    const me=MP.players[MP.myId];
+    if(me){me.pts=MP.myPts;}
+    updateScorebar();
+    mpBroadcast({type:'pts-update',id:MP.myId,pts:MP.myPts,langPts:me?.langPts});
+  } else {
+    if(!ptsMode)return;
+    soloPts=Math.max(0,soloPts+delta);
+    updateScorebar();
   }
-  updateScorebar();
-  mpBroadcast({type:'pts-update',id:MP.myId,pts:MP.myPts,langPts:me?.langPts});
 }
 
 function updateScorebar(){
-  if(!MP.active){document.getElementById('scorebar').classList.remove('on');return;}
-  document.getElementById('scorebar').classList.add('on');
+  const sb=document.getElementById('scorebar');
+  if(!MP.active){
+    if(!ptsMode){sb.classList.remove('on');return;}
+    sb.classList.add('on','solo');sb.classList.remove('mp');
+    const ti=document.getElementById('turn-label');ti.textContent='';
+    document.getElementById('sb-players').innerHTML=
+      `<span class="sb-my-label">あなたのポイント</span><span class="sb-my-pts">${soloPts}<small style="font-size:.6em;margin-left:2px">pt</small></span>`;
+    return;
+  }
+  sb.classList.add('on');sb.classList.remove('solo');sb.classList.add('mp');
   const ti=document.getElementById('turn-label');
   const tp=MP.players[MP.turnOrder[MP.currentTurnIdx]];
   ti.textContent=tp?`${tp.name}のターン`:'';
   ti.style.color=tp?.color||'var(--accent)';
-  const sb=document.getElementById('sb-players');sb.innerHTML='';
+  const sbp=document.getElementById('sb-players');sbp.innerHTML='';
   MP.turnOrder.forEach(id=>{
     const p=MP.players[id];if(!p)return;
+    const isMe=id===MP.myId;
     const sp=document.createElement('span');
-    sp.innerHTML=`<span class="sb-dot" style="background:${p.color}"></span>${p.name}: ${p.pts||0}pt`;
-    sb.appendChild(sp);
+    sp.className=isMe?'sb-player-me':'sb-player-other';
+    sp.innerHTML=`<span class="sb-dot" style="background:${p.color}"></span>${isMe?'<b>'+p.name+'</b>':p.name}: <span class="sb-pt-val">${p.pts||0}</span>pt`;
+    sbp.appendChild(sp);
   });
 }
 
@@ -1628,11 +2102,29 @@ function isMyTurn(){
 }
 
 function nextTurn(){
+  const prevIdx=MP.currentTurnIdx;
   MP.currentTurnIdx=(MP.currentTurnIdx+1)%MP.turnOrder.length;
+  // 全員1周したらroundCount++
+  if(MP.currentTurnIdx===0){
+    MP.roundCount=(MP.roundCount||0)+1;
+    // ターン数チェック
+    if(MP.turnLimit>0&&MP.roundCount>=MP.turnLimit){
+      mpBroadcast({type:'turn-change',idx:MP.currentTurnIdx});
+      showGameEnd();
+      return;
+    }
+  }
   mpBroadcast({type:'turn-change',idx:MP.currentTurnIdx});
   showTurnBanner();updateScorebar();
   // Generate new bonus event each turn
   setTimeout(generateBonusEvent,600);
+  // NPC対戦: NPCのターンなら直接起動
+  if(MP.players[NPC_ID]){
+    clearTimeout(npcTimer);
+    if(MP.turnOrder[MP.currentTurnIdx]===NPC_ID){
+      setTimeout(npcThink,600);
+    }
+  }
 }
 
 function showTurnBanner(){
@@ -1755,6 +2247,11 @@ function handleMsg(msg){
     updateScorebar();showTurnBanner();
     setTimeout(generateBonusEvent,800);
   }
+  // NPCのターンなら思考開始
+  if(msg.type==='turn-change'||msg.type==='game-start'){
+    clearTimeout(npcTimer);
+    setTimeout(npcThink,400);
+  }
 }
 
 function serializeSolved(){
@@ -1817,12 +2314,14 @@ document.getElementById('btn-host').addEventListener('click',()=>{
   MP.players[MP.myId]={name:MP.myName,color:MP.myColor,pts:0,langPts:{it:0,de:0,en:0}};
   MP.roomCode=genCode();MP.isHost=true;MP.active=true;
   MP.turnOrder=[MP.myId];MP.currentTurnIdx=0;
+  MP.turnLimit=selectedTurnLimit;MP.roundCount=0;
   setupBC(MP.roomCode);
   try{setupPeer(MP.roomCode,true);}catch(e){}
   document.getElementById('mp-room-code').textContent=MP.roomCode;
   document.getElementById('mps-setup').style.display='none';
   document.getElementById('mps-room').style.display='block';
   renderPlayerList();updateScorebar();
+  document.getElementById('btn-to-single').style.display='inline-block';
 });
 document.getElementById('btn-join').addEventListener('click',()=>{
   playClick();
@@ -1869,14 +2368,30 @@ document.getElementById('btn-mp-leave').addEventListener('click',()=>{
   document.getElementById('multi-panel').classList.remove('open');
 });
 
+function returnToSingle(){
+  playClose();
+  clearTimeout(npcTimer);
+  npcHideOverlay&&npcHideOverlay();
+  mpBroadcast({type:'leave',id:MP.myId});
+  if(MP.channel){MP.channel.close();MP.channel=null;}
+  if(MP.peer){MP.peer.destroy();MP.peer=null;}
+  Object.keys(cursors).forEach(id=>removeCursorLabel(id));
+  MP={active:false,isHost:false,roomCode:null,myId:null,myName:null,myColor:null,players:{},turnOrder:[],currentTurnIdx:0,channel:null,peer:null,conns:{},myPts:0,myTeamPts:0,currentEvent:null};
+  document.getElementById('mps-setup').style.display='block';
+  document.getElementById('mps-room').style.display='none';
+  document.getElementById('mps-join').style.display='none';
+  document.getElementById('scorebar').classList.remove('on');
+  document.getElementById('mp-event-bar').classList.remove('on');
+  document.getElementById('multi-panel').classList.remove('open');
+  document.getElementById('btn-to-single').style.display='none';
+  soloPts=0;updateScorebar();onModalClose&&onModalClose();
+}
+document.getElementById('btn-to-single').addEventListener('click',returnToSingle);
+
 // ================================================================
 // EVENTS
 // ================================================================
-document.getElementById('btn-quit').addEventListener('click',()=>{playOpen();document.getElementById('modal-quit').classList.add('open');});
-document.getElementById('btn-continue').addEventListener('click',()=>{playClose();document.getElementById('modal-quit').classList.remove('open');});
-document.getElementById('btn-give-up').addEventListener('click',()=>{playClose();document.getElementById('modal-quit').classList.remove('open');showResult();});
-document.getElementById('btn-end').addEventListener('click',()=>{playOpen();showResult();});
-document.getElementById('btn-close-result').addEventListener('click',()=>{playClose();document.getElementById('modal-result').classList.remove('open');resetAll();});
+// (quit/continue/give-up/end/close-result are patched below with BGM duck)
 document.getElementById('cat-select').addEventListener('change',e=>{playClick();currentCat=e.target.value;renderGrid(currentCat);});
 document.getElementById('lang-select').addEventListener('change',e=>{playClick();currentLang=e.target.value;applyLocale();});
 document.getElementById('accent-toggle').addEventListener('change',e=>{playClick();accentFree=e.target.checked;renderGrid(currentCat);});
@@ -1885,13 +2400,596 @@ document.getElementById('btn-theme').addEventListener('click',()=>{
   const cur=document.documentElement.getAttribute('data-theme');
   manualTheme=cur==='dark'?'light':'dark';applyTheme();
 });
+document.getElementById('btn-multi').addEventListener('click',()=>{
+  playOpen();onModalOpen&&onModalOpen();
+  document.getElementById('btn-to-single').style.display=MP.active?'inline-block':'none';
+  document.getElementById('multi-panel').classList.add('open');
+});
+
+// ターン選択ボタン
+document.querySelectorAll('.turn-sel').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.turn-sel').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedTurnLimit=parseInt(btn.dataset.v)||0;
+    playClick();
+  });
+});
+document.getElementById('btn-mp-close').addEventListener('click',()=>{playClose();onModalClose&&onModalClose();document.getElementById('multi-panel').classList.remove('open');});
 window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(manualTheme===null)applyTheme();});
+
+// ================================================================
+// BGM — 4/4拍子 木琴＋ドラム 32小節ループ
+// ================================================================
+let bgmCtx=null,bgmGain=null,bgmRunning=false;
+let bgmLoopStart=null,bgmLoopTimer=null;
+let bgmDuckTimer=null;
+
+const BPM=88;
+const BEAT=60/BPM;          // 1拍 ≈ 0.682s
+const BAR=BEAT*4;           // 1小節 ≈ 2.727s
+const LOOP_BARS=32;
+const LOOP_LEN=BAR*LOOP_BARS; // 約87.3s
+
+// ── 音階 (Cメジャーペンタ、2オクターブ) ──
+// C4=261.63 D=293.66 E=329.63 G=392 A=440
+// C5=523.25 D=587.33 E=659.25 G=783.99 A=880
+const N={
+  C4:261.63,D4:293.66,E4:329.63,G4:392.00,A4:440.00,
+  C5:523.25,D5:587.33,E5:659.25,G5:783.99,A5:880.00,
+  C3:130.81,G3:196.00,
+};
+// 休符 = 0
+
+// ── 木琴メロディ (32小節 × 4拍、各拍の音 / 0=休符) ──
+// セクションA(1-8), B(9-16), C(17-24), D(25-32)
+const XMELO=[
+  // セクションA — ゆったりしたシンプルなフレーズ (bars 1-8)
+  [N.E5,0,N.G4,0],   // 1
+  [N.C5,0,0,N.D5],   // 2
+  [N.E5,N.C5,0,0],   // 3
+  [N.G4,0,N.A4,0],   // 4
+  [N.E5,0,N.G4,0],   // 5
+  [N.D5,0,N.C5,0],   // 6
+  [N.A4,0,0,N.G4],   // 7
+  [N.C5,0,0,0],      // 8
+  // セクションB — 少し動きを足す (bars 9-16)
+  [N.G5,0,N.E5,0],   // 9
+  [N.A5,0,0,N.G5],   // 10
+  [N.E5,N.G5,0,N.E5],// 11
+  [N.D5,0,N.C5,0],   // 12
+  [N.G5,0,N.A4,0],   // 13
+  [N.C5,N.E5,0,0],   // 14
+  [N.D5,0,0,N.C5],   // 15
+  [N.G4,0,0,0],      // 16
+  // セクションC — オクターブ下にシフト、静かめ (bars 17-24)
+  [N.E4,0,N.G4,0],   // 17
+  [N.C4,0,0,N.D4],   // 18
+  [N.E4,N.C4,0,0],   // 19
+  [N.G4,0,N.A4,0],   // 20
+  [N.C5,0,N.G4,0],   // 21
+  [N.E4,0,N.D4,0],   // 22
+  [N.A4,0,0,N.E4],   // 23
+  [N.C4,0,0,0],      // 24
+  // セクションD — フルに戻って盛り上げ、ループへ (bars 25-32)
+  [N.E5,0,N.C5,0],   // 25
+  [N.G5,0,0,N.E5],   // 26
+  [N.A5,N.G5,N.E5,0],// 27
+  [N.C5,0,N.D5,0],   // 28
+  [N.E5,N.A4,0,N.G4],// 29
+  [N.C5,0,N.E5,0],   // 30
+  [N.G4,N.A4,N.C5,N.E5],// 31
+  [N.G5,0,0,0],      // 32
+];
+
+// ── ドラムパターン (32小節 × 4拍) ──
+// 各拍: {k=kick, s=snare, h=hihat}  0=なし 1=あり
+// ベーシックなパターン、セクションで変化
+function mkDrum(k,s,h){return{k,s,h};}
+const D0=mkDrum(0,0,0),DK=mkDrum(1,0,0),DS=mkDrum(0,1,0),
+      DH=mkDrum(0,0,1),DKH=mkDrum(1,0,1),DSH=mkDrum(0,1,1);
+
+const DRUM=[
+  // セクションA — シンプル、キック拍1,ハイハット全拍
+  [DKH,DH,DSH,DH],[DKH,DH,DSH,DH],[DKH,DH,DSH,DH],[DKH,DH,DSH,DH],
+  [DKH,DH,DSH,DH],[DKH,DH,DSH,DH],[DKH,DH,DSH,DH],[DK ,DH,DS ,DH],
+  // セクションB — キック足を増やす
+  [DKH,DH,DSH,DH],[DKH,DH,DSH,DKH],[DKH,DH,DSH,DH],[DKH,DKH,DSH,DH],
+  [DKH,DH,DSH,DH],[DKH,DH,DSH,DKH],[DKH,DH,DSH,DH],[DK ,DH,DS ,DH ],
+  // セクションC — ハイハット間引き、静か
+  [DK ,D0,DS ,D0],[DK ,D0,DS ,D0],[DK ,D0,DS ,D0],[DK ,D0,DS ,D0],
+  [DK ,DH,DS ,DH],[DK ,DH,DS ,DH],[DK ,DH,DS ,DH],[DK ,D0,DS ,D0],
+  // セクションD — 全部入り、盛り上がり
+  [DKH,DH,DSH,DH],[DKH,DH,DSH,DKH],[DKH,DH,DSH,DH],[DKH,DKH,DSH,DH],
+  [DKH,DH,DSH,DH],[DKH,DH,DSH,DKH],[DKH,DKH,DSH,DH],[DKH,DH,DSH,DH],
+];
+
+// ── 音を鳴らすユーティリティ ──
+function bgmXylo(freq,t,dur,vol){
+  // 木琴: triangle + 高調波でコツコツ感
+  const ctx=bgmCtx;
+  [1,2,3].forEach((harm,i)=>{
+    const vols=[vol,vol*.25,vol*.08];
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='triangle';o.frequency.value=freq*harm;
+    o.connect(g);g.connect(bgmGain);
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(vols[i],t+0.008);
+    g.gain.exponentialRampToValueAtTime(0.001,t+dur*(1-i*0.25));
+    o.start(t);o.stop(t+dur+0.02);
+  });
+}
+
+function bgmKick(t){
+  const ctx=bgmCtx;
+  const o=ctx.createOscillator(),g=ctx.createGain();
+  o.type='sine';
+  o.frequency.setValueAtTime(140,t);
+  o.frequency.exponentialRampToValueAtTime(40,t+0.12);
+  o.connect(g);g.connect(bgmGain);
+  g.gain.setValueAtTime(0.55,t);
+  g.gain.exponentialRampToValueAtTime(0.001,t+0.18);
+  o.start(t);o.stop(t+0.2);
+}
+
+function bgmSnare(t){
+  const ctx=bgmCtx;
+  // noise
+  const buf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.12),ctx.sampleRate);
+  const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1);
+  const src=ctx.createBufferSource(),flt=ctx.createBiquadFilter(),g=ctx.createGain();
+  flt.type='bandpass';flt.frequency.value=2200;flt.Q.value=0.8;
+  src.buffer=buf;src.connect(flt);flt.connect(g);g.connect(bgmGain);
+  g.gain.setValueAtTime(0.22,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.1);
+  src.start(t);src.stop(t+0.13);
+  // body tone
+  const o=ctx.createOscillator(),g2=ctx.createGain();
+  o.type='triangle';o.frequency.value=200;
+  o.connect(g2);g2.connect(bgmGain);
+  g2.gain.setValueAtTime(0.08,t);g2.gain.exponentialRampToValueAtTime(0.001,t+0.06);
+  o.start(t);o.stop(t+0.08);
+}
+
+function bgmHihat(t,open=false){
+  const ctx=bgmCtx;
+  const buf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*(open?0.09:0.04)),ctx.sampleRate);
+  const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1);
+  const src=ctx.createBufferSource(),flt=ctx.createBiquadFilter(),g=ctx.createGain();
+  flt.type='highpass';flt.frequency.value=7000;
+  src.buffer=buf;src.connect(flt);flt.connect(g);g.connect(bgmGain);
+  const dur=open?0.08:0.035;
+  g.gain.setValueAtTime(0.1,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+  src.start(t);src.stop(t+dur+0.01);
+}
+
+// ── 1ループ分スケジュール ──
+function bgmScheduleLoop(loopStartTime){
+  if(!bgmRunning||!bgmCtx||!bgmGain)return;
+  for(let bar=0;bar<LOOP_BARS;bar++){
+    const barT=loopStartTime+bar*BAR;
+    const xRow=XMELO[bar];
+    const dRow=DRUM[bar];
+    for(let beat=0;beat<4;beat++){
+      const beatT=barT+beat*BEAT;
+      // 木琴
+      const freq=xRow[beat];
+      if(freq){
+        bgmXylo(freq,beatT,BEAT*0.45,0.065);
+      }
+      // ドラム
+      const dp=dRow[beat];
+      if(dp.k) bgmKick(beatT);
+      if(dp.s) bgmSnare(beatT+0.004); // snare わずかに遅らせてグルーヴ
+      if(dp.h) bgmHihat(beatT+0.002);
+    }
+  }
+  // 次のループをループ終了の0.5秒前にスケジュール
+  const nextLoopStart=loopStartTime+LOOP_LEN;
+  const scheduleIn=(nextLoopStart-bgmCtx.currentTime-0.5)*1000;
+  bgmLoopTimer=setTimeout(()=>bgmScheduleLoop(nextLoopStart), Math.max(10,scheduleIn));
+}
+
+function bgmStart(){
+  if(bgmRunning)return;
+  bgmRunning=true;
+  if(!bgmCtx){
+    bgmCtx=new(window.AudioContext||window.webkitAudioContext)();
+    bgmGain=bgmCtx.createGain();
+    bgmGain.gain.value=0.42;
+    bgmGain.connect(bgmCtx.destination);
+  }
+  if(bgmCtx.state==='suspended')bgmCtx.resume();
+  const startT=bgmCtx.currentTime+0.15;
+  bgmScheduleLoop(startT);
+}
+
+function bgmStop(){
+  bgmRunning=false;
+  if(bgmLoopTimer){clearTimeout(bgmLoopTimer);bgmLoopTimer=null;}
+}
+
+function bgmDuck(vol=0.1,ms=600){
+  if(!bgmGain)return;
+  bgmGain.gain.cancelScheduledValues(bgmCtx.currentTime);
+  bgmGain.gain.linearRampToValueAtTime(vol,bgmCtx.currentTime+0.2);
+  if(bgmDuckTimer)clearTimeout(bgmDuckTimer);
+  bgmDuckTimer=setTimeout(()=>{
+    if(bgmGain)bgmGain.gain.linearRampToValueAtTime(0.42,bgmCtx.currentTime+0.6);
+  },ms);
+}
+
+// モーダル開閉でBGM音量制御
+function onModalOpen(){bgmDuck(0.08,99999);}
+function onModalClose(){
+  if(!bgmGain)return;
+  bgmGain.gain.cancelScheduledValues(bgmCtx.currentTime);
+  bgmGain.gain.linearRampToValueAtTime(0.42,bgmCtx.currentTime+0.6);
+  if(bgmDuckTimer)clearTimeout(bgmDuckTimer);
+}
+
+// Patch modal open/close to duck BGM
+document.getElementById('btn-quit').removeEventListener('click',()=>{});
+document.getElementById('btn-quit').addEventListener('click',()=>{playOpen();onModalOpen();document.getElementById('modal-quit').classList.add('open');});
+document.getElementById('btn-continue').addEventListener('click',()=>{playClose();onModalClose();document.getElementById('modal-quit').classList.remove('open');});
+document.getElementById('btn-give-up').addEventListener('click',()=>{
+  playClose();onModalClose();
+  document.getElementById('modal-quit').classList.remove('open');
+  showResult();onModalOpen();
+});
+document.getElementById('btn-end').addEventListener('click',()=>{playOpen();onModalOpen();showResult();});
+document.getElementById('btn-close-result').addEventListener('click',()=>{
+  playClose();onModalClose();
+  document.getElementById('modal-result').classList.remove('open');
+  resetAll();
+});
+
+// ================================================================
+// RESULT COUNTUP SE
+// ================================================================
+function playCountTick(val){
+  // tick sound per step, pitch rises with value
+  try{
+    const ctx=ac(),now=ctx.currentTime;
+    const freq=440+Math.min(val*18,880);
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='triangle';o.frequency.setValueAtTime(freq,now);
+    o.connect(g);g.connect(sed());
+    g.gain.setValueAtTime(.07,now);g.gain.exponentialRampToValueAtTime(.001,now+.045);
+    o.start(now);o.stop(now+.06);
+  }catch(e){}
+}
+
+function playCountFinish(isBonus){
+  // ゴージャスなフィニッシュ
+  try{
+    const ctx=ac(),now=ctx.currentTime;
+    if(isBonus){
+      // ボーナス: ascending 5th with shimmer
+      [[523.25,0,.22],[783.99,.07,.22],[1046.5,.14,.28],[1318.5,.21,.3],[1568,.28,.35]].forEach(([f,t,d])=>{
+        const o=ctx.createOscillator(),g=ctx.createGain();
+        o.type='triangle';o.frequency.value=f;
+        o.connect(g);g.connect(sed());
+        g.gain.setValueAtTime(0,now+t);g.gain.linearRampToValueAtTime(.22,now+t+.015);g.gain.exponentialRampToValueAtTime(.001,now+t+d);
+        o.start(now+t);o.stop(now+t+d+.02);
+      });
+      [2093,2637].forEach((f,i)=>{
+        const o=ctx.createOscillator(),g=ctx.createGain();
+        o.type='sine';o.frequency.value=f;
+        o.connect(g);g.connect(sed());
+        const t=now+.32+i*.07;
+        g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.09,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+.2);
+        o.start(t);o.stop(t+.22);
+      });
+    } else {
+      // 通常: bright arpeggio
+      [[523.25,0,.18],[659.25,.055,.18],[783.99,.11,.2],[1046.5,.17,.26]].forEach(([f,t,d])=>{
+        const o=ctx.createOscillator(),g=ctx.createGain();
+        o.type='triangle';o.frequency.value=f;
+        o.connect(g);g.connect(sed());
+        g.gain.setValueAtTime(0,now+t);g.gain.linearRampToValueAtTime(.2,now+t+.014);g.gain.exponentialRampToValueAtTime(.001,now+t+d);
+        o.start(now+t);o.stop(now+t+d+.02);
+      });
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type='sine';o.frequency.value=1318.5;
+      o.connect(g);g.connect(sed());
+      g.gain.setValueAtTime(0,now+.2);g.gain.linearRampToValueAtTime(.08,now+.21);g.gain.exponentialRampToValueAtTime(.001,now+.36);
+      o.start(now+.2);o.stop(now+.38);
+    }
+  }catch(e){}
+}
+
+// Patch animCountUp to play tick SE
+const _origAnimCountUp=animCountUp;
+function animCountUp(el,from,to,duration,cb,isBonus=false){
+  if(from===to){cb&&cb();return;}
+  const start=performance.now();
+  const diff=to-from;
+  let lastTick=-1;
+  function step(now){
+    const t=Math.min(1,(now-start)/duration);
+    const eased=1-(1-t)*(1-t);
+    const val=Math.round(from+diff*eased);
+    el.textContent=val;
+    // SE: tick every 1pt
+    if(val!==lastTick){lastTick=val;playCountTick(val);}
+    if(t>=1){
+      el.classList.remove('rsa-total-bump');
+      void el.offsetWidth;
+      el.classList.add('rsa-total-bump');
+      playCountFinish(isBonus);
+      cb&&cb();
+    } else {
+      requestAnimationFrame(step);
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+// Patch runScoreAnimation to pass isBonus flag
+function runScoreAnimation(feedEl,totalEl,idx,running){
+  if(idx>=solvedHistory.length)return;
+  const h=solvedHistory[idx];
+  const delay=idx===0?320:180;
+
+  setTimeout(()=>{
+    const row=document.createElement('div');
+    row.className='rsa-row';
+    const target=h.word[h.lang]||h.word.it;
+    const flag=FLAG[h.lang]||'';
+    let ptsHtml='',badgeHtml='';
+    if(h.isPerfect){
+      ptsHtml=`<span class="rsa-pts-perfect">✨パーフェクト！ ×2 → <b>+${h.pts}pt</b></span>`;
+      badgeHtml=`<span class="rsa-badge perfect">PERFECT</span>`;
+    } else {
+      ptsHtml=`<span class="rsa-pts-base">+${h.pts}pt</span>`;
+    }
+    row.innerHTML=`<span class="rsa-word">${flag}${target}</span>${badgeHtml}${ptsHtml}`;
+    feedEl.appendChild(row);
+    feedEl.scrollTop=feedEl.scrollHeight;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>row.classList.add('in')));
+
+    const newRunning1=running+h.pts;
+    animCountUp(totalEl,running,newRunning1,380,()=>{
+      if(h.bonusPts>0){
+        setTimeout(()=>{
+          const brow=document.createElement('div');
+          brow.className='rsa-row';
+          brow.style.background='rgba(240,160,48,.08)';
+          brow.innerHTML=`
+            <span style="flex:1;font-size:.74rem;color:var(--text-muted)">　↳ ボーナス</span>
+            <span class="rsa-badge bonus">BONUS</span>
+            <span class="rsa-pts-bonus">+${h.bonusPts}pt</span>
+          `;
+          feedEl.appendChild(brow);
+          feedEl.scrollTop=feedEl.scrollHeight;
+          requestAnimationFrame(()=>requestAnimationFrame(()=>brow.classList.add('in')));
+          const newRunning2=newRunning1+h.bonusPts;
+          animCountUp(totalEl,newRunning1,newRunning2,320,()=>{
+            runScoreAnimation(feedEl,totalEl,idx+1,newRunning2);
+          },true);
+        },120);
+      } else {
+        runScoreAnimation(feedEl,totalEl,idx+1,newRunning1);
+      }
+    },false);
+  },delay);
+}
 
 // ================================================================
 // INIT
 // ================================================================
+// Triviaポップアップ: カード外クリックで閉じる（グローバル1個）
+document.addEventListener('click',e=>{
+  if(triviaOpenCard&&!triviaOpenCard.contains(e.target)){
+    closeTrivia(triviaOpenCard);triviaOpenCard=null;
+  }
+});
+
+// Start BGM on first user interaction
+document.addEventListener('click',()=>{if(!bgmRunning)bgmStart();},{once:true});
+document.addEventListener('keydown',()=>{if(!bgmRunning)bgmStart();},{once:true});
+
+// BGMミュートボタン
+let bgmMuted=false;
+document.getElementById('btn-bgm-mute').addEventListener('click',()=>{
+  bgmMuted=!bgmMuted;
+  const btn=document.getElementById('btn-bgm-mute');
+  if(bgmMuted){
+    if(bgmGain){bgmGain.gain.cancelScheduledValues(bgmCtx.currentTime);bgmGain.gain.linearRampToValueAtTime(0,bgmCtx.currentTime+.2);}
+    btn.textContent='🔇';btn.classList.add('pts-on');
+  } else {
+    if(!bgmRunning)bgmStart();
+    if(bgmGain){bgmGain.gain.cancelScheduledValues(bgmCtx.currentTime);bgmGain.gain.linearRampToValueAtTime(.42,bgmCtx.currentTime+.3);}
+    btn.textContent='🔊';btn.classList.remove('pts-on');
+  }
+  playClick();
+});
+
+// ポイントモードボタン (既存)
+document.getElementById('btn-pts-mode').addEventListener('click',()=>{
+  playClick();
+  ptsMode=!ptsMode;
+  const btn=document.getElementById('btn-pts-mode');
+  btn.classList.toggle('pts-on',ptsMode);
+  btn.textContent=ptsMode?'🏆 PT':'— PT';
+  if(!ptsMode){
+    if(ptsPopupTimer)clearTimeout(ptsPopupTimer);
+    document.getElementById('pts-popup').classList.remove('show');
+  }
+  updateScorebar();
+});
+
+// シングルモード開始時にスコアバー表示
+updateScorebar();
+
+// ================================================================
+// NPC AI (A1レベル)
+// ================================================================
+// A1 NPC: ゆっくり回答、たまに間違える、答えを「見る」ことが多い
+const NPC_ID='__npc__';
+const NPC_NAMES=['ロケット団員','ぺラップ','キャタピー','ポッポ','コラッタ'];
+let npcTimer=null;
+
+function npcShowOverlay(npcName, actionText, cardText){
+  const ov=document.getElementById('npc-overlay');
+  document.getElementById('npc-overlay-name').textContent='🤖 '+npcName;
+  document.getElementById('npc-overlay-action').textContent=actionText;
+  const prev=document.getElementById('npc-card-preview');
+  if(cardText){
+    prev.innerHTML=`<span>${cardText}</span>`;
+  } else {
+    prev.innerHTML='<div class="npc-typing-dots"><span></span><span></span><span></span></div>';
+  }
+  ov.classList.add('show');
+}
+function npcHideOverlay(){
+  document.getElementById('npc-overlay').classList.remove('show');
+}
+
+function npcThink(){
+  if(!MP.active||!MP.players[NPC_ID])return;
+  if(MP.turnOrder[MP.currentTurnIdx]!==NPC_ID)return;
+
+  const npc=MP.players[NPC_ID];
+  const npcName=npc.name.replace('🤖 ','');
+  const cat=currentCat;
+  const lang=currentLang;
+  const langName={it:'イタリア語',de:'ドイツ語',en:'英語'}[lang]||'イタリア語';
+  const words=WORD_DATA[cat]?.words||[];
+  const unsolved=words.map((_,i)=>i).filter(i=>!getSolved(cat).has(i));
+
+  if(!unsolved.length){npcHideOverlay();nextTurn();return;}
+
+  // カードをランダムに選ぶ
+  const idx=unsolved[Math.floor(Math.random()*unsolved.length)];
+  const w=words[idx];
+  const correct=w[lang]||w.it;
+  const icon=w.icon||'📖';
+  const ja=w.ja||'';
+
+  // Phase 1: 考え中オーバーレイ表示（0〜1.2s）
+  npcShowOverlay(npcName, `${langName}で操作中…`, null);
+
+  // Phase 2: カードにフォーカス（1.2s）
+  const t1=700+Math.random()*600;
+  npcTimer=setTimeout(()=>{
+    if(!MP.active||MP.turnOrder[MP.currentTurnIdx]!==NPC_ID){npcHideOverlay();return;}
+    npcShowOverlay(npcName, `${icon} ${ja}を考えています…`, '???');
+
+    // Phase 3: 入力アニメーション（2.0〜2.8s）
+    const t2=800+Math.random()*500;
+    npcTimer=setTimeout(()=>{
+      if(!MP.active||MP.turnOrder[MP.currentTurnIdx]!==NPC_ID){npcHideOverlay();return;}
+
+      // A1: 55%peek(1pt) / 30%正解(5pt) / 15%不正解
+      const roll=Math.random();
+      let pts=0;
+      let actionLabel='';
+      let cardDisplay='';
+      let didSolve=false;
+
+      if(roll<0.55){
+        // peek: 答えを見てから入力
+        pts=1;
+        actionLabel=`📖 答えを確認して入力…`;
+        cardDisplay=correct;
+        didSolve=true;
+      } else if(roll<0.85){
+        // 正解
+        pts=5;
+        actionLabel=`✏️ 入力中…`;
+        // タイピング演出: 1文字ずつ
+        cardDisplay=correct;
+        didSolve=true;
+      } else {
+        // 不正解
+        pts=0;
+        actionLabel=`❌ わからない…`;
+        cardDisplay='…？';
+        didSolve=false;
+      }
+
+      // タイピング演出
+      if(didSolve){
+        let typed='';
+        const chars=[...correct];
+        npcShowOverlay(npcName, actionLabel, '');
+        const typeInterval=setInterval(()=>{
+          if(!MP.active){clearInterval(typeInterval);npcHideOverlay();return;}
+          typed+=chars.shift()||'';
+          document.getElementById('npc-card-preview').innerHTML=`<span>${typed}</span>`;
+          if(!chars.length)clearInterval(typeInterval);
+        }, Math.min(120, 800/correct.length));
+      } else {
+        npcShowOverlay(npcName, actionLabel, cardDisplay);
+      }
+
+      // Phase 4: 結果処理（+1.2s）
+      npcTimer=setTimeout(()=>{
+        npcHideOverlay();
+        if(!MP.active||MP.turnOrder[MP.currentTurnIdx]!==NPC_ID)return;
+
+        if(didSolve){
+          getSolved(cat).add(idx);
+          getSolvedLang(cat)[idx]=lang;
+          if(!npc.langPts)npc.langPts={it:0,de:0,en:0};
+          npc.pts=(npc.pts||0)+pts;
+          npc.langPts[lang]=(npc.langPts[lang]||0)+pts;
+          // カードをsolvedにして視覚的にパルス
+          updateScore();renderGrid(cat);updateScorebar();
+          const card=document.querySelector(`#word-grid .word-card[data-idx="${idx}"]`);
+          if(card){
+            card.style.transition='box-shadow .3s';
+            card.style.boxShadow='0 0 18px #40c080';
+            setTimeout(()=>card.style.boxShadow='',700);
+          }
+        }
+        setTimeout(()=>nextTurn(), 400);
+      }, 1100);
+
+    }, t2);
+  }, t1);
+}
+
+// NPCとの対戦開始
+document.getElementById('btn-npc').addEventListener('click',()=>{
+  playOpen();
+  const myName=getMyName();
+  const myColor=getMyColor();
+  const myId='player_'+genId();
+  const npcName=NPC_NAMES[Math.floor(Math.random()*NPC_NAMES.length)];
+  const npcColor=PLAYER_COLORS[1];
+
+  // MP状態を初期化
+  MP.active=true;MP.isHost=true;
+  MP.myId=myId;MP.myName=myName;MP.myColor=myColor;
+  MP.myPts=0;MP.myTeamPts=0;
+  MP.players={};
+  MP.players[myId]={name:myName,color:myColor,pts:0,langPts:{it:0,de:0,en:0}};
+  MP.players[NPC_ID]={name:'🤖 '+npcName,color:npcColor,pts:0,langPts:{it:0,de:0,en:0}};
+  MP.turnOrder=[myId,NPC_ID];
+  MP.currentTurnIdx=0;
+  MP.turnLimit=selectedTurnLimit;MP.roundCount=0;
+
+  // ゲームリセット
+  solved={};peeked={};hinted={};solvedLang={};milestoneCount=0;
+  wrongCount={};solvedHistory=[];soloPts=0;
+  for(const k in peekTimers)clearTimeout(peekTimers[k]);peekTimers={};
+
+  document.getElementById('multi-panel').classList.remove('open');
+  document.getElementById('btn-to-single').style.display='inline-block';
+  onModalClose();
+  updateScore();renderGrid(currentCat);updateScorebar();
+  showTurnBanner();
+  setTimeout(generateBonusEvent,800);
+  setTimeout(npcThink,800);
+});
+
+// Init pts mode button (既存)
+document.getElementById('btn-pts-mode').classList.toggle('pts-on',ptsMode);
 applyTheme();
 applyLocale();
+
 
 </script>
 <!-- PeerJS for cross-device multiplayer -->
